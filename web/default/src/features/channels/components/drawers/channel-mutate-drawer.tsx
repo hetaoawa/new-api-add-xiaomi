@@ -616,6 +616,13 @@ export function ChannelMutateDrawer({
       }
     }
 
+    if (currentType === 58) {
+      const currentBaseUrlValue = form.getValues('base_url')
+      if (!currentBaseUrlValue || currentBaseUrlValue === '') {
+        form.setValue('base_url', 'https://api.xiaomimimo.com')
+      }
+    }
+
     // Type 18 (Xunfei) - set default other (version)
     if (currentType === 18) {
       const currentOther = form.getValues('other')
@@ -1220,6 +1227,17 @@ export function ChannelMutateDrawer({
                     </AlertDescription>
                   </Alert>
                 )}
+                {currentType === 58 && (
+                  <Alert>
+                    <AlertDescription>
+                      Xiaomi MiMo Token Plan is only for AI programming tools.
+                      Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API
+                      keys (`sk-xxxxx`) are independent and cannot be mixed.
+                      Token Plan also has region-specific endpoints and keys are
+                      not interchangeable across regions.
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 {/* Azure (type 3) */}
                 {currentType === 3 && (
@@ -1751,8 +1769,51 @@ export function ChannelMutateDrawer({
                   />
                 )}
 
+                {/* Xiaomi (type 58) */}
+                {currentType === 58 && (
+                  <FormField
+                    control={form.control}
+                    name='base_url'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('API Base URL *')}</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || 'https://api.xiaomimimo.com'}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='https://api.xiaomimimo.com'>
+                              Xiaomi MiMo Pay-as-you-go
+                            </SelectItem>
+                            <SelectItem value='mimo-token-plan-cn'>
+                              Xiaomi MiMo Token Plan (China)
+                            </SelectItem>
+                            <SelectItem value='mimo-token-plan-sgp'>
+                              Xiaomi MiMo Token Plan (Singapore)
+                            </SelectItem>
+                            <SelectItem value='mimo-token-plan-ams'>
+                              Xiaomi MiMo Token Plan (Europe)
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          {t(
+                            'Pay-as-you-go uses the default public endpoint. Token Plan must use the region-specific endpoint shown in the MiMo subscription console, and keys cannot be mixed across billing types or regions.'
+                          )}
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
                 {/* General base_url for other types */}
-                {![3, 8, 22, 36, 45].includes(currentType) && (
+                {![3, 8, 22, 36, 45, 58].includes(currentType) && (
                   <FormField
                     control={form.control}
                     name='base_url'

@@ -3,6 +3,7 @@ package controller
 import (
 	"testing"
 
+	"github.com/QuantumNous/new-api/constant"
 	"github.com/QuantumNous/new-api/dto"
 	"github.com/QuantumNous/new-api/model"
 	"github.com/stretchr/testify/require"
@@ -18,6 +19,30 @@ func TestNormalizeModelNames(t *testing.T) {
 	})
 
 	require.Equal(t, []string{"gpt-4o", "gpt-4.1"}, result)
+}
+
+func TestFetchChannelUpstreamModelIDsUsesXiaomiTokenPlanOpenAIBaseURL(t *testing.T) {
+	channel := &model.Channel{
+		Type:    constant.ChannelTypeXiaomi,
+		BaseURL: "mimo-token-plan-cn",
+	}
+
+	baseURL := constant.ChannelBaseURLs[channel.Type]
+	if channel.GetBaseURL() != "" {
+		baseURL = channel.GetBaseURL()
+	}
+
+	var url string
+	switch channel.Type {
+	case constant.ChannelTypeXiaomi:
+		if plan, ok := constant.ChannelSpecialBases[baseURL]; ok && plan.OpenAIBaseURL != "" {
+			url = plan.OpenAIBaseURL + "/models"
+		} else {
+			url = baseURL + "/v1/models"
+		}
+	}
+
+	require.Equal(t, "https://token-plan-cn.xiaomimimo.com/v1/models", url)
 }
 
 func TestMergeModelNames(t *testing.T) {

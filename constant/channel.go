@@ -209,4 +209,16 @@ var ChannelSpecialBases = map[string]ChannelSpecialBase{
 		ClaudeBaseURL: "https://ark.cn-beijing.volces.com/api/coding",
 		OpenAIBaseURL: "https://ark.cn-beijing.volces.com/api/coding/v3",
 	},
+	"mimo-token-plan-cn": {
+		ClaudeBaseURL: "https://token-plan-cn.xiaomimimo.com/anthropic",
+		OpenAIBaseURL: "https://token-plan-cn.xiaomimimo.com/v1",
+	},
+	"mimo-token-plan-sgp": {
+		ClaudeBaseURL: "https://token-plan-sgp.xiaomimimo.com/anthropic",
+		OpenAIBaseURL: "https://token-plan-sgp.xiaomimimo.com/v1",
+	},
+	"mimo-token-plan-ams": {
+		ClaudeBaseURL: "https://token-plan-ams.xiaomimimo.com/anthropic",
+		OpenAIBaseURL: "https://token-plan-ams.xiaomimimo.com/v1",
+	},
 }

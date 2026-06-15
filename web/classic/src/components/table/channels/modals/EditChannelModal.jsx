@@ -128,6 +128,10 @@ const PARAM_OVERRIDE_OPERATIONS_TEMPLATE = {
 };
 
 const DEPRECATED_DOUBAO_CODING_PLAN_BASE_URL = 'doubao-coding-plan';
+const XIAOMI_MIMO_DEFAULT_BASE_URL = 'https://api.xiaomimimo.com';
+const XIAOMI_MIMO_TOKEN_PLAN_CN_BASE_URL = 'mimo-token-plan-cn';
+const XIAOMI_MIMO_TOKEN_PLAN_SGP_BASE_URL = 'mimo-token-plan-sgp';
+const XIAOMI_MIMO_TOKEN_PLAN_AMS_BASE_URL = 'mimo-token-plan-ams';
 
 // 支持并且已适配通过接口获取模型列表的渠道类型
 const MODEL_FETCHABLE_TYPES = new Set([
@@ -445,6 +449,8 @@ const EditChannelModal = (props) => {
       </span>
     </Tooltip>
   );
+  const xiaomiMimoTokenPlanWarning =
+    'Xiaomi MiMo Token Plan 仅适用于 AI 编程工具。Token Plan 的 API Key（tp-xxxxx）与按量 API 的 API Key（sk-xxxxx）彼此独立、不可混用；且 Token Plan 需按地域使用专属接入点，不同地域之间的 Key 也不互通。';
 
   // 2FA状态更新辅助函数
   const updateTwoFAState = (updates) => {
@@ -672,6 +678,13 @@ const EditChannelModal = (props) => {
           setInputs((prevInputs) => ({
             ...prevInputs,
             base_url: 'https://ark.cn-beijing.volces.com',
+          }));
+          break;
+        case 58:
+          localModels = getChannelModels(value);
+          setInputs((prevInputs) => ({
+            ...prevInputs,
+            base_url: XIAOMI_MIMO_DEFAULT_BASE_URL,
           }));
           break;
         default:
@@ -3355,6 +3368,14 @@ const EditChannelModal = (props) => {
                         />
                       )}
 
+                      {inputs.type === 58 && (
+                        <Banner
+                          type='warning'
+                          description={xiaomiMimoTokenPlanWarning}
+                          className='!rounded-lg'
+                        />
+                      )}
+
                       {inputs.type !== 3 &&
                         inputs.type !== 8 &&
                         inputs.type !== 22 &&
@@ -3442,6 +3463,39 @@ const EditChannelModal = (props) => {
                               },
                             ]}
                             defaultValue='https://ark.cn-beijing.volces.com'
+                            disabled={isIonetLocked}
+                          />
+                        </div>
+                      )}
+
+                      {inputs.type === 58 && (
+                        <div>
+                          <Form.Select
+                            field='base_url'
+                            label={t('API地址')}
+                            placeholder={t('请选择API地址')}
+                            onChange={(value) =>
+                              handleInputChange('base_url', value)
+                            }
+                            optionList={[
+                              {
+                                value: XIAOMI_MIMO_DEFAULT_BASE_URL,
+                                label: 'Xiaomi MiMo Pay-as-you-go',
+                              },
+                              {
+                                value: XIAOMI_MIMO_TOKEN_PLAN_CN_BASE_URL,
+                                label: 'Xiaomi MiMo Token Plan (China)',
+                              },
+                              {
+                                value: XIAOMI_MIMO_TOKEN_PLAN_SGP_BASE_URL,
+                                label: 'Xiaomi MiMo Token Plan (Singapore)',
+                              },
+                              {
+                                value: XIAOMI_MIMO_TOKEN_PLAN_AMS_BASE_URL,
+                                label: 'Xiaomi MiMo Token Plan (Europe)',
+                              },
+                            ]}
+                            defaultValue={XIAOMI_MIMO_DEFAULT_BASE_URL}
                             disabled={isIonetLocked}
                           />
                         </div>

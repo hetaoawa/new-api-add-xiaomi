@@ -4,6 +4,7 @@ const (
 	ChannelName           = "xiaomi"
 	contextKeyAudioFormat = "xiaomi_audio_format"
 	defaultMimoVoice      = "mimo_default"
+	defaultMimoBaseURL    = "https://api.xiaomimimo.com"
 )
 
 var ModelList = []string{
