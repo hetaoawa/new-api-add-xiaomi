@@ -1,0 +1,36 @@
+name: Xiaomi MiMo Token Plan Check
+
+on:
+  pull_request:
+    paths:
+      - 'constant/channel.go'
+      - 'controller/channel.go'
+      - 'controller/channel_upstream_update.go'
+      - 'controller/channel_upstream_update_test.go'
+      - 'relay/channel/xiaomi/**'
+      - '.github/workflows/xiaomi-mimo-token-plan-check.yml'
+  push:
+    paths:
+      - 'constant/channel.go'
+      - 'controller/channel.go'
+      - 'controller/channel_upstream_update.go'
+      - 'controller/channel_upstream_update_test.go'
+      - 'relay/channel/xiaomi/**'
+      - '.github/workflows/xiaomi-mimo-token-plan-check.yml'
+  workflow_dispatch:
+
+jobs:
+  go-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run focused Go tests
+        run: |
+          go test ./relay/channel/xiaomi ./controller
