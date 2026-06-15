@@ -1230,11 +1230,9 @@ export function ChannelMutateDrawer({
                 {currentType === 58 && (
                   <Alert>
                     <AlertDescription>
-                      Xiaomi MiMo Token Plan is only for AI programming tools.
-                      Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API
-                      keys (`sk-xxxxx`) are independent and cannot be mixed.
-                      Token Plan also has region-specific endpoints and keys are
-                      not interchangeable across regions.
+                      {t(
+                        'Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.'
+                      )}
                     </AlertDescription>
                   </Alert>
                 )}
@@ -1788,16 +1786,16 @@ export function ChannelMutateDrawer({
                           </FormControl>
                           <SelectContent>
                             <SelectItem value='https://api.xiaomimimo.com'>
-                              Xiaomi MiMo Pay-as-you-go
+                              {t('Xiaomi MiMo Pay-as-you-go')}
                             </SelectItem>
                             <SelectItem value='mimo-token-plan-cn'>
-                              Xiaomi MiMo Token Plan (China)
+                              {t('Xiaomi MiMo Token Plan (China)')}
                             </SelectItem>
                             <SelectItem value='mimo-token-plan-sgp'>
-                              Xiaomi MiMo Token Plan (Singapore)
+                              {t('Xiaomi MiMo Token Plan (Singapore)')}
                             </SelectItem>
                             <SelectItem value='mimo-token-plan-ams'>
-                              Xiaomi MiMo Token Plan (Europe)
+                              {t('Xiaomi MiMo Token Plan (Europe)')}
                             </SelectItem>
                           </SelectContent>
                         </Select>

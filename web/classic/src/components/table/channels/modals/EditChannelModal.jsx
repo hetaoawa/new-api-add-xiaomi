@@ -449,8 +449,9 @@ const EditChannelModal = (props) => {
       </span>
     </Tooltip>
   );
-  const xiaomiMimoTokenPlanWarning =
-    'Xiaomi MiMo Token Plan 仅适用于 AI 编程工具。Token Plan 的 API Key（tp-xxxxx）与按量 API 的 API Key（sk-xxxxx）彼此独立、不可混用；且 Token Plan 需按地域使用专属接入点，不同地域之间的 Key 也不互通。';
+  const xiaomiMimoTokenPlanWarning = t(
+    'Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.',
+  );
 
   // 2FA状态更新辅助函数
   const updateTwoFAState = (updates) => {
@@ -3480,19 +3481,19 @@ const EditChannelModal = (props) => {
                             optionList={[
                               {
                                 value: XIAOMI_MIMO_DEFAULT_BASE_URL,
-                                label: 'Xiaomi MiMo Pay-as-you-go',
+                                label: t('Xiaomi MiMo Pay-as-you-go'),
                               },
                               {
                                 value: XIAOMI_MIMO_TOKEN_PLAN_CN_BASE_URL,
-                                label: 'Xiaomi MiMo Token Plan (China)',
+                                label: t('Xiaomi MiMo Token Plan (China)'),
                               },
                               {
                                 value: XIAOMI_MIMO_TOKEN_PLAN_SGP_BASE_URL,
-                                label: 'Xiaomi MiMo Token Plan (Singapore)',
+                                label: t('Xiaomi MiMo Token Plan (Singapore)'),
                               },
                               {
                                 value: XIAOMI_MIMO_TOKEN_PLAN_AMS_BASE_URL,
-                                label: 'Xiaomi MiMo Token Plan (Europe)',
+                                label: t('Xiaomi MiMo Token Plan (Europe)'),
                               },
                             ]}
                             defaultValue={XIAOMI_MIMO_DEFAULT_BASE_URL}

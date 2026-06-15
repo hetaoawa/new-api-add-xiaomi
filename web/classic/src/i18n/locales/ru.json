@@ -3669,6 +3669,11 @@
     "默认用户消息": "Здравствуйте",
     "默认补全倍率": "Коэффициент завершения по умолчанию",
     "阶梯计费（表达式解析失败）": "Многоуровневая тарификация (ошибка разбора выражения)",
-    "阶梯计费（未匹配到对应阶梯）": "Многоуровневая тарификация (подходящий уровень не найден)"
+    "阶梯计费（未匹配到对应阶梯）": "Многоуровневая тарификация (подходящий уровень не найден)",
+    "Xiaomi MiMo Pay-as-you-go": "Xiaomi MiMo с оплатой по мере использования",
+    "Xiaomi MiMo Token Plan (China)": "Xiaomi MiMo Token Plan (Китай)",
+    "Xiaomi MiMo Token Plan (Europe)": "Xiaomi MiMo Token Plan (Европа)",
+    "Xiaomi MiMo Token Plan (Singapore)": "Xiaomi MiMo Token Plan (Сингапур)",
+    "Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.": "Xiaomi MiMo Token Plan предназначен только для AI-инструментов программирования. Ключи API Token Plan (`tp-xxxxx`) и ключи API с оплатой по мере использования (`sk-xxxxx`) независимы и не могут смешиваться; кроме того, Token Plan использует отдельные региональные точки доступа, и ключи нельзя взаимозаменяемо использовать между регионами."
   }
 }

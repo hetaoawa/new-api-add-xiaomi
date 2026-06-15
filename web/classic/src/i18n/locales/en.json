@@ -3794,6 +3794,11 @@
     "见上方动态计费详情": "See dynamic pricing details above",
     "含时间条件": "Time rules",
     "含请求条件": "Request rules",
-    "（当前仅支持易支付接口，默认使用上方服务器地址作为回调地址！）": "(Currently only supports Epay interface, the default callback address is the server address above!)"
+    "（当前仅支持易支付接口，默认使用上方服务器地址作为回调地址！）": "(Currently only supports Epay interface, the default callback address is the server address above!)",
+    "Xiaomi MiMo Pay-as-you-go": "Xiaomi MiMo Pay-as-you-go",
+    "Xiaomi MiMo Token Plan (China)": "Xiaomi MiMo Token Plan (China)",
+    "Xiaomi MiMo Token Plan (Europe)": "Xiaomi MiMo Token Plan (Europe)",
+    "Xiaomi MiMo Token Plan (Singapore)": "Xiaomi MiMo Token Plan (Singapore)",
+    "Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.": "Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions."
   }
 }

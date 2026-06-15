@@ -3618,6 +3618,11 @@
     "默认用户消息": "こんにちは",
     "默认补全倍率": "デフォルト補完倍率",
     "阶梯计费（表达式解析失败）": "段階課金（式の解析に失敗）",
-    "阶梯计费（未匹配到对应阶梯）": "段階課金（一致する階層なし）"
+    "阶梯计费（未匹配到对应阶梯）": "段階課金（一致する階層なし）",
+    "Xiaomi MiMo Pay-as-you-go": "Xiaomi MiMo 従量課金",
+    "Xiaomi MiMo Token Plan (China)": "Xiaomi MiMo Token Plan（中国）",
+    "Xiaomi MiMo Token Plan (Europe)": "Xiaomi MiMo Token Plan（ヨーロッパ）",
+    "Xiaomi MiMo Token Plan (Singapore)": "Xiaomi MiMo Token Plan（シンガポール）",
+    "Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.": "Xiaomi MiMo Token Plan は AI コーディングツール専用です。Token Plan の API キー（`tp-xxxxx`）と従量課金 API キー（`sk-xxxxx`）は互いに独立しており混在できません。さらに Token Plan は地域ごとの専用エンドポイントを使う必要があり、地域間でキーを共用できません。"
   }
 }

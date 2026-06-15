@@ -3649,6 +3649,11 @@
     "默认用户消息": "Bonjour",
     "默认补全倍率": "Taux de complétion par défaut",
     "阶梯计费（表达式解析失败）": "Facturation par paliers (échec de l'analyse de l'expression)",
-    "阶梯计费（未匹配到对应阶梯）": "Facturation par paliers (aucun palier correspondant)"
+    "阶梯计费（未匹配到对应阶梯）": "Facturation par paliers (aucun palier correspondant)",
+    "Xiaomi MiMo Pay-as-you-go": "Xiaomi MiMo à l’usage",
+    "Xiaomi MiMo Token Plan (China)": "Xiaomi MiMo Token Plan (Chine)",
+    "Xiaomi MiMo Token Plan (Europe)": "Xiaomi MiMo Token Plan (Europe)",
+    "Xiaomi MiMo Token Plan (Singapore)": "Xiaomi MiMo Token Plan (Singapour)",
+    "Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.": "Le Xiaomi MiMo Token Plan est réservé aux outils de programmation IA. Les clés API Token Plan (`tp-xxxxx`) et les clés API à l’usage (`sk-xxxxx`) sont indépendantes et ne peuvent pas être mélangées ; le Token Plan doit aussi utiliser des points d’accès régionaux dédiés, et les clés ne sont pas interchangeables entre régions."
   }
 }

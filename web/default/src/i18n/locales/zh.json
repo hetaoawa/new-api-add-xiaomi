@@ -3909,6 +3909,12 @@
     "Your Turnstile site key": "您的 Turnstile 站点密钥",
     "Zhipu": "智谱",
     "Zhipu V4": "智谱 V4",
-    "Zoom": "缩放"
+    "Zoom": "缩放",
+    "Pay-as-you-go uses the default public endpoint. Token Plan must use the region-specific endpoint shown in the MiMo subscription console, and keys cannot be mixed across billing types or regions.": "按量计费使用默认公共接入点。Token Plan 必须使用 MiMo 订阅控制台显示的地域专属接入点，且不同计费类型或不同地域之间的 Key 都不能混用。",
+    "Xiaomi MiMo Pay-as-you-go": "Xiaomi MiMo 按量计费",
+    "Xiaomi MiMo Token Plan (China)": "Xiaomi MiMo Token Plan（中国区）",
+    "Xiaomi MiMo Token Plan (Europe)": "Xiaomi MiMo Token Plan（欧洲区）",
+    "Xiaomi MiMo Token Plan (Singapore)": "Xiaomi MiMo Token Plan（新加坡区）",
+    "Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.": "Xiaomi MiMo Token Plan 仅适用于 AI 编程工具。Token Plan API Key（`tp-xxxxx`）与按量 API Key（`sk-xxxxx`）彼此独立、不可混用。Token Plan 还区分地域接入点，不同地域之间的 Key 也不互通。"
   }
 }

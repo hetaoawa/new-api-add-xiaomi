@@ -3909,6 +3909,12 @@
     "Your Turnstile site key": "Ключ сайта Turnstile",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "Pay-as-you-go uses the default public endpoint. Token Plan must use the region-specific endpoint shown in the MiMo subscription console, and keys cannot be mixed across billing types or regions.": "Оплата по мере использования использует общедоступную конечную точку по умолчанию. Token Plan должен использовать региональную конечную точку, указанную в консоли подписки MiMo, а ключи нельзя смешивать между типами биллинга или регионами.",
+    "Xiaomi MiMo Pay-as-you-go": "Xiaomi MiMo с оплатой по мере использования",
+    "Xiaomi MiMo Token Plan (China)": "Xiaomi MiMo Token Plan (Китай)",
+    "Xiaomi MiMo Token Plan (Europe)": "Xiaomi MiMo Token Plan (Европа)",
+    "Xiaomi MiMo Token Plan (Singapore)": "Xiaomi MiMo Token Plan (Сингапур)",
+    "Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.": "Xiaomi MiMo Token Plan предназначен только для AI-инструментов программирования. Ключи API Token Plan (`tp-xxxxx`) и ключи API с оплатой по мере использования (`sk-xxxxx`) независимы и не могут смешиваться. У Token Plan также есть региональные точки доступа, и ключи нельзя использовать между регионами взаимозаменяемо."
   }
 }

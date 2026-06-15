@@ -2595,6 +2595,11 @@
     "说明：本页测试为非流式请求；若渠道仅支持流式返回，可能出现测试失败，请以实际使用为准。": "说明：本页测试为非流式请求；若渠道仅支持流式返回，可能出现测试失败，请以实际使用为准。",
     "提示：端点映射仅用于模型广场展示，不会影响模型真实调用。如需配置真实调用，请前往「渠道管理」。": "提示：端点映射仅用于模型广场展示，不会影响模型真实调用。如需配置真实调用，请前往「渠道管理」。",
     "阶梯计费（表达式解析失败）": "阶梯计费（表达式解析失败）",
-    "阶梯计费（未匹配到对应阶梯）": "阶梯计费（未匹配到对应阶梯）"
+    "阶梯计费（未匹配到对应阶梯）": "阶梯计费（未匹配到对应阶梯）",
+    "Xiaomi MiMo Pay-as-you-go": "Xiaomi MiMo 按量计费",
+    "Xiaomi MiMo Token Plan (China)": "Xiaomi MiMo Token Plan（中国区）",
+    "Xiaomi MiMo Token Plan (Europe)": "Xiaomi MiMo Token Plan（欧洲区）",
+    "Xiaomi MiMo Token Plan (Singapore)": "Xiaomi MiMo Token Plan（新加坡区）",
+    "Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.": "Xiaomi MiMo Token Plan 仅适用于 AI 编程工具。Token Plan API Key（`tp-xxxxx`）与按量 API Key（`sk-xxxxx`）彼此独立、不可混用；且 Token Plan 需按地域使用专属接入点，不同地域之间的 Key 也不互通。"
   }
 }

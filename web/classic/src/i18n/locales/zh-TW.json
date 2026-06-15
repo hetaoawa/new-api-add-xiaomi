@@ -3642,6 +3642,11 @@
     "默认用户消息": "你好",
     "默认补全倍率": "預設補全倍率",
     "阶梯计费（表达式解析失败）": "階梯計費（表達式解析失敗）",
-    "阶梯计费（未匹配到对应阶梯）": "階梯計費（未匹配到對應階梯）"
+    "阶梯计费（未匹配到对应阶梯）": "階梯計費（未匹配到對應階梯）",
+    "Xiaomi MiMo Pay-as-you-go": "Xiaomi MiMo 按量計費",
+    "Xiaomi MiMo Token Plan (China)": "Xiaomi MiMo Token Plan（中國區）",
+    "Xiaomi MiMo Token Plan (Europe)": "Xiaomi MiMo Token Plan（歐洲區）",
+    "Xiaomi MiMo Token Plan (Singapore)": "Xiaomi MiMo Token Plan（新加坡區）",
+    "Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.": "Xiaomi MiMo Token Plan 僅適用於 AI 程式設計工具。Token Plan API Key（`tp-xxxxx`）與按量 API Key（`sk-xxxxx`）彼此獨立、不可混用；且 Token Plan 需按地域使用專屬接入點，不同地域之間的 Key 也不互通。"
   }
 }

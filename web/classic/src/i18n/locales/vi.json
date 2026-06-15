@@ -4183,6 +4183,11 @@
     "默认用户消息": "Xin chào",
     "默认补全倍率": "Tỷ lệ hoàn thành mặc định",
     "阶梯计费（表达式解析失败）": "Thanh toán theo bậc (không phân tích được biểu thức)",
-    "阶梯计费（未匹配到对应阶梯）": "Thanh toán theo bậc (không tìm thấy bậc phù hợp)"
+    "阶梯计费（未匹配到对应阶梯）": "Thanh toán theo bậc (không tìm thấy bậc phù hợp)",
+    "Xiaomi MiMo Pay-as-you-go": "Xiaomi MiMo trả theo mức dùng",
+    "Xiaomi MiMo Token Plan (China)": "Xiaomi MiMo Token Plan (Trung Quốc)",
+    "Xiaomi MiMo Token Plan (Europe)": "Xiaomi MiMo Token Plan (Châu Âu)",
+    "Xiaomi MiMo Token Plan (Singapore)": "Xiaomi MiMo Token Plan (Singapore)",
+    "Xiaomi MiMo Token Plan is only for AI programming tools. Token Plan API keys (`tp-xxxxx`) and pay-as-you-go API keys (`sk-xxxxx`) are independent and cannot be mixed. Token Plan also has region-specific endpoints and keys are not interchangeable across regions.": "Xiaomi MiMo Token Plan chỉ dành cho các công cụ lập trình AI. API key của Token Plan (`tp-xxxxx`) và API key trả theo mức dùng (`sk-xxxxx`) là độc lập và không được dùng lẫn; đồng thời Token Plan phải dùng endpoint riêng theo từng khu vực và key không thể dùng chéo giữa các khu vực."
   }
 }
