@@ -22,9 +22,10 @@ func TestNormalizeModelNames(t *testing.T) {
 }
 
 func TestFetchChannelUpstreamModelIDsUsesXiaomiTokenPlanOpenAIBaseURL(t *testing.T) {
+	baseURLValue := "mimo-token-plan-cn"
 	channel := &model.Channel{
 		Type:    constant.ChannelTypeXiaomi,
-		BaseURL: "mimo-token-plan-cn",
+		BaseURL: &baseURLValue,
 	}
 
 	baseURL := constant.ChannelBaseURLs[channel.Type]
