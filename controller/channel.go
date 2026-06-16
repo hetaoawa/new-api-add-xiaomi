@@ -203,6 +203,20 @@ func buildFetchModelsHeaders(channel *model.Channel, key string) (http.Header, e
 	return headers, nil
 }
 
+func resolveFetchModelsBaseURL(channelType int, baseURL string) string {
+	if baseURL == "" {
+		baseURL = constant.ChannelBaseURLs[channelType]
+	}
+
+	if channelType == constant.ChannelTypeXiaomi {
+		if plan, ok := constant.ChannelSpecialBases[baseURL]; ok && plan.OpenAIBaseURL != "" {
+			return plan.OpenAIBaseURL
+		}
+	}
+
+	return baseURL
+}
+
 func FetchUpstreamModels(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -988,10 +1002,7 @@ func FetchModels(c *gin.Context) {
 		return
 	}
 
-	baseURL := req.BaseURL
-	if baseURL == "" {
-		baseURL = constant.ChannelBaseURLs[req.Type]
-	}
+	baseURL := resolveFetchModelsBaseURL(req.Type, req.BaseURL)
 
 	// remove line breaks and extra spaces.
 	key := strings.TrimSpace(req.Key)
@@ -1038,6 +1049,9 @@ func FetchModels(c *gin.Context) {
 
 	client := &http.Client{}
 	url := fmt.Sprintf("%s/v1/models", baseURL)
+	if strings.HasSuffix(baseURL, "/v1") {
+		url = baseURL + "/models"
+	}
 
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -1049,6 +1063,9 @@ func FetchModels(c *gin.Context) {
 	}
 
 	request.Header.Set("Authorization", "Bearer "+key)
+	if req.Type == constant.ChannelTypeXiaomi {
+		request.Header.Set("api-key", key)
+	}
 
 	response, err := client.Do(request)
 	if err != nil {

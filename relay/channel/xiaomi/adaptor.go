@@ -43,7 +43,20 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 			if specialPlan.OpenAIBaseURL == "" {
 				return "", errors.New("xiaomi token plan openai base url is empty")
 			}
-			return relaycommon.GetFullRequestURL(specialPlan.OpenAIBaseURL, info.RequestURLPath, info.ChannelType), nil
+			switch info.RelayMode {
+			case relayconstant.RelayModeChatCompletions:
+				return fmt.Sprintf("%s/chat/completions", specialPlan.OpenAIBaseURL), nil
+			case relayconstant.RelayModeCompletions:
+				return fmt.Sprintf("%s/completions", specialPlan.OpenAIBaseURL), nil
+			case relayconstant.RelayModeEmbeddings:
+				return fmt.Sprintf("%s/embeddings", specialPlan.OpenAIBaseURL), nil
+			case relayconstant.RelayModeResponses:
+				return fmt.Sprintf("%s/responses", specialPlan.OpenAIBaseURL), nil
+			case relayconstant.RelayModeResponsesCompact:
+				return fmt.Sprintf("%s/responses/compact", specialPlan.OpenAIBaseURL), nil
+			default:
+				return relaycommon.GetFullRequestURL(specialPlan.OpenAIBaseURL, info.RequestURLPath, info.ChannelType), nil
+			}
 		}
 	}
 	info.ChannelBaseUrl = baseURL

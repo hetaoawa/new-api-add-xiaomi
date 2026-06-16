@@ -96,6 +96,10 @@ import {
   SiX,
 } from 'react-icons/si';
 
+const ICON_ALIASES = {
+  XiaomiMiMo: 'Xiaomi',
+};
+
 // 获取侧边栏Lucide图标组件
 export function getLucideIcon(key, selected = false) {
   const size = 16;
@@ -290,6 +294,11 @@ export const getModelCategories = (() => {
         icon: <XAI />,
         filter: (model) => model.model_name.toLowerCase().includes('grok'),
       },
+      xiaomi: {
+        label: 'Xiaomi',
+        icon: getLobeHubIcon('Xiaomi', 14),
+        filter: (model) => model.model_name.toLowerCase().includes('mimo'),
+      },
       llama: {
         label: 'Llama',
         icon: <Ollama />,
@@ -326,7 +335,7 @@ const channelTypeIconMap = {
   34: 'Cohere.Color', // Cohere
   39: 'Cloudflare.Color', // Cloudflare
   43: 'DeepSeek.Color', // DeepSeek
-  58: 'XiaomiMiMo', // Xiaomi MiMo
+  58: 'Xiaomi', // Xiaomi MiMo
   15: 'Wenxin.Color', // 百度文心千帆
   46: 'Wenxin.Color', // 百度文心千帆V2
   17: 'Qwen.Color', // 阿里通义千问
@@ -383,6 +392,10 @@ export function getChannelIcon(channelType) {
  */
 export function getLobeHubIcon(iconName, size = 14) {
   if (typeof iconName === 'string') iconName = iconName.trim();
+  if (iconName) {
+    iconName =
+      ICON_ALIASES[iconName] || iconName.replace(/^XiaomiMiMo(?=\.|$)/, 'Xiaomi');
+  }
   // 如果没有图标名称，返回 Avatar
   if (!iconName) {
   return <Avatar size='extra-extra-small'>?</Avatar>;

@@ -5,7 +5,9 @@ import (
 	"testing"
 
 	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/constant"
 	"github.com/QuantumNous/new-api/dto"
+	"github.com/QuantumNous/new-api/model"
 	"github.com/QuantumNous/new-api/pkg/billingexpr"
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	"github.com/QuantumNous/new-api/types"
@@ -68,4 +70,32 @@ func TestBuildTestLogOtherInjectsTieredInfo(t *testing.T) {
 	require.Equal(t, "tiered_expr", other["billing_mode"])
 	require.Equal(t, "base", other["matched_tier"])
 	require.NotEmpty(t, other["expr_b64"])
+}
+
+func TestNormalizeChannelTestEndpointUsesResponsesForXiaomiTextModels(t *testing.T) {
+	channel := &model.Channel{Type: constant.ChannelTypeXiaomi}
+
+	endpoint := normalizeChannelTestEndpoint(channel, "mimo-v2-pro", "")
+	require.Equal(t, string(constant.EndpointTypeOpenAIResponse), endpoint)
+}
+
+func TestNormalizeChannelTestEndpointDoesNotForceResponsesForXiaomiTTS(t *testing.T) {
+	channel := &model.Channel{Type: constant.ChannelTypeXiaomi}
+
+	endpoint := normalizeChannelTestEndpoint(channel, "mimo-v2.5-tts", "")
+	require.Equal(t, "", endpoint)
+}
+
+func TestBuildTestRequestUsesResponsesRequestForXiaomiTextModels(t *testing.T) {
+	req := buildTestRequest("mimo-v2.5", "", &model.Channel{Type: constant.ChannelTypeXiaomi}, false)
+
+	_, ok := req.(*dto.OpenAIResponsesRequest)
+	require.True(t, ok)
+}
+
+func TestBuildTestRequestDoesNotUseResponsesRequestForXiaomiTTS(t *testing.T) {
+	req := buildTestRequest("mimo-v2.5-tts", "", &model.Channel{Type: constant.ChannelTypeXiaomi}, false)
+
+	_, ok := req.(*dto.OpenAIResponsesRequest)
+	require.False(t, ok)
 }

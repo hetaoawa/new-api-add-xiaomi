@@ -9,6 +9,10 @@
  */
 import * as LobeIcons from '@lobehub/icons'
 
+const ICON_ALIASES: Record<string, string> = {
+  XiaomiMiMo: 'Xiaomi',
+}
+
 /**
  * Parse a property value from string to appropriate type
  * @param raw - Raw string value
@@ -81,8 +85,12 @@ export function getLobeIcon(
     )
   }
 
+  const resolvedName =
+    ICON_ALIASES[trimmedName] ||
+    trimmedName.replace(/^XiaomiMiMo(?=\.|$)/, 'Xiaomi')
+
   // Parse component path and chained properties
-  const segments = trimmedName.split('.')
+  const segments = resolvedName.split('.')
   const baseKey = segments[0]
   const BaseIcon = (LobeIcons as Record<string, unknown>)[baseKey] as
     | Record<string, unknown>
@@ -108,7 +116,7 @@ export function getLobeIcon(
     !IconComponent ||
     (typeof IconComponent !== 'function' && typeof IconComponent !== 'object')
   ) {
-    const firstLetter = trimmedName.charAt(0).toUpperCase()
+    const firstLetter = resolvedName.charAt(0).toUpperCase()
     return (
       <div
         className='bg-muted text-muted-foreground flex items-center justify-center rounded-full text-xs font-medium'

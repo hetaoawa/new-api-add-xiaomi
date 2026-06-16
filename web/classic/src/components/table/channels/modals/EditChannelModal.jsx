@@ -986,6 +986,13 @@ const EditChannelModal = (props) => {
       ) {
         data.base_url = 'https://ark.cn-beijing.volces.com';
       }
+      if (
+        data.type === 58 &&
+        (!data.base_url ||
+          (typeof data.base_url === 'string' && data.base_url.trim() === ''))
+      ) {
+        data.base_url = XIAOMI_MIMO_DEFAULT_BASE_URL;
+      }
 
       initialBaseUrlRef.current = data.base_url || '';
       setInputs(data);
@@ -3380,6 +3387,7 @@ const EditChannelModal = (props) => {
                         inputs.type !== 8 &&
                         inputs.type !== 22 &&
                         inputs.type !== 36 &&
+                        inputs.type !== 58 &&
                         (inputs.type !== 45 || doubaoApiEditUnlocked) && (
                           <div>
                             <Form.Input

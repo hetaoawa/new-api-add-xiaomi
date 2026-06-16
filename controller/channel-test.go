@@ -51,6 +51,9 @@ func normalizeChannelTestEndpoint(channel *model.Channel, modelName, endpointTyp
 	if strings.HasSuffix(modelName, ratio_setting.CompactModelSuffix) {
 		return string(constant.EndpointTypeOpenAIResponseCompact)
 	}
+	if common.IsOpenAIResponseOnlyModel(modelName) {
+		return string(constant.EndpointTypeOpenAIResponse)
+	}
 	if channel != nil && channel.Type == constant.ChannelTypeCodex {
 		return string(constant.EndpointTypeOpenAIResponse)
 	}
@@ -123,7 +126,7 @@ func testChannel(channel *model.Channel, testModel string, endpointType string, 
 		}
 
 		// responses-only models
-		if strings.Contains(strings.ToLower(testModel), "codex") {
+		if common.IsOpenAIResponseOnlyModel(testModel) || strings.Contains(strings.ToLower(testModel), "codex") {
 			requestPath = "/v1/responses"
 		}
 
@@ -773,8 +776,8 @@ func buildTestRequest(model string, endpointType string, channel *model.Channel,
 		}
 	}
 
-	// Responses-only models (e.g. codex series)
-	if strings.Contains(strings.ToLower(model), "codex") {
+	// Responses-only models (e.g. codex and Xiaomi MiMo text series)
+	if common.IsOpenAIResponseOnlyModel(model) || strings.Contains(strings.ToLower(model), "codex") {
 		return &dto.OpenAIResponsesRequest{
 			Model:  model,
 			Input:  json.RawMessage(`[{"role":"user","content":"hi"}]`),
