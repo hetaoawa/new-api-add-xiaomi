@@ -220,11 +220,8 @@ func shouldUseChatCompletionsViaResponses(info *relaycommon.RelayInfo) bool {
 	if info == nil {
 		return false
 	}
-	if service.ShouldChatCompletionsUseResponsesGlobal(info.ChannelId, info.ChannelType, info.OriginModelName) {
-		return true
-	}
-	if info.ChannelType != constant.ChannelTypeXiaomi {
+	if info.RelayMode != relayconstant.RelayModeChatCompletions {
 		return false
 	}
-	return info.RelayMode == relayconstant.RelayModeChatCompletions
+	return service.ShouldChatCompletionsUseResponsesGlobal(info.ChannelId, info.ChannelType, info.OriginModelName)
 }

@@ -81,6 +81,19 @@ func TestStreamScannerHandler_NilInputs(t *testing.T) {
 	StreamScannerHandler(c, &http.Response{Body: io.NopCloser(strings.NewReader(""))}, info, nil)
 }
 
+func TestStreamScannerHandler_NilRelayInfo(t *testing.T) {
+	t.Parallel()
+
+	c, resp, _ := setupStreamTest(t, strings.NewReader(buildSSEBody(1)))
+
+	var count atomic.Int64
+	StreamScannerHandler(c, resp, nil, func(data string, sr *StreamResult) {
+		count.Add(1)
+	})
+
+	assert.Equal(t, int64(1), count.Load())
+}
+
 func TestStreamScannerHandler_EmptyBody(t *testing.T) {
 	t.Parallel()
 

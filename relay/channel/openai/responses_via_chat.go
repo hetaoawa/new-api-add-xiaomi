@@ -50,9 +50,12 @@ func OaiChatToResponsesHandler(c *gin.Context, info *relaycommon.RelayInfo, resp
 	return &chatResp.Usage, nil
 }
 
-func OaiChatToResponsesStreamHandler(c *gin.Context, _ *relaycommon.RelayInfo, resp *http.Response) (*dto.Usage, *types.NewAPIError) {
+func OaiChatToResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo, resp *http.Response) (*dto.Usage, *types.NewAPIError) {
 	if resp == nil || resp.Body == nil {
 		return nil, types.NewOpenAIError(fmt.Errorf("invalid response"), types.ErrorCodeBadResponse, http.StatusInternalServerError)
+	}
+	if info == nil {
+		info = &relaycommon.RelayInfo{}
 	}
 
 	defer service.CloseResponseBodyGracefully(resp)
@@ -91,7 +94,7 @@ func OaiChatToResponsesStreamHandler(c *gin.Context, _ *relaycommon.RelayInfo, r
 		})
 	}
 
-	helper.StreamScannerHandler(c, resp, nil, func(data string, sr *helper.StreamResult) {
+	helper.StreamScannerHandler(c, resp, info, func(data string, sr *helper.StreamResult) {
 		var chunk dto.ChatCompletionsStreamResponse
 		if err := common.UnmarshalJsonStr(data, &chunk); err != nil {
 			sr.Error(err)
