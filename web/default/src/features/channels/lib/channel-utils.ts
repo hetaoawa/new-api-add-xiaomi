@@ -103,6 +103,14 @@ export function getChannelTypeIcon(type: number): string {
   return TYPE_TO_ICON[type] || 'OpenAI'
 }
 
+export function getChannelTypeIconSpec(type: number): string {
+  const iconName = getChannelTypeIcon(type)
+  if (iconName === 'XiaomiMiMo') {
+    return iconName
+  }
+  return `${iconName}.Color`
+}
+
 // ============================================================================
 // Status Utilities
 // ============================================================================

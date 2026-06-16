@@ -117,6 +117,7 @@ import {
   type ChannelFormValues,
   deduplicateKeys,
   getChannelTypeIcon,
+  getChannelTypeIconSpec,
   getKeyPromptForType,
   parseModelsString,
   formatModelsArray,
@@ -454,13 +455,13 @@ export function ChannelMutateDrawer({
     const options = CHANNEL_TYPE_OPTIONS.map((option) => ({
       value: String(option.value),
       label: t(option.label),
-      icon: getLobeIcon(`${getChannelTypeIcon(option.value)}.Color`, 16),
+      icon: getLobeIcon(getChannelTypeIconSpec(option.value), 16),
     }))
     if (!options.some((option) => Number(option.value) === currentType)) {
       options.push({
         value: String(currentType),
         label: `#${currentType}`,
-        icon: getLobeIcon(`${getChannelTypeIcon(currentType)}.Color`, 16),
+        icon: getLobeIcon(getChannelTypeIconSpec(currentType), 16),
       })
     }
     return options
@@ -1093,7 +1094,7 @@ export function ChannelMutateDrawer({
           <SheetHeader className='border-b px-4 py-3 text-start sm:px-6 sm:py-4'>
             <SheetTitle className='flex items-center gap-3'>
               <span className='bg-muted flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border'>
-                {getLobeIcon(`${getChannelTypeIcon(currentType)}.Color`, 22)}
+                {getLobeIcon(getChannelTypeIconSpec(currentType), 22)}
               </span>
               <span>
                 {isEditing ? t('Edit Channel') : t('Create Channel')}
@@ -1778,32 +1779,44 @@ export function ChannelMutateDrawer({
                       <FormItem>
                         <FormLabel>{t('API Base URL *')}</FormLabel>
                         <FormControl>
-                          <Combobox
-                            options={[
-                              {
-                                value: 'https://api.xiaomimimo.com',
-                                label: 'Xiaomi MiMo Pay-as-you-go',
-                              },
-                              {
-                                value: 'mimo-token-plan-cn',
-                                label: 'Xiaomi MiMo Token Plan (China)',
-                              },
-                              {
-                                value: 'mimo-token-plan-sgp',
-                                label: 'Xiaomi MiMo Token Plan (Singapore)',
-                              },
-                              {
-                                value: 'mimo-token-plan-ams',
-                                label: 'Xiaomi MiMo Token Plan (Europe)',
-                              },
-                            ]}
-                            value={field.value || 'https://api.xiaomimimo.com'}
-                            onValueChange={field.onChange}
-                            placeholder={t('Enter or select API base URL')}
-                            searchPlaceholder={t('Search or enter API base URL')}
-                            emptyText={t('No preset endpoint found.')}
-                            allowCustomValue
-                          />
+                          <div className='space-y-2'>
+                            <Input
+                              placeholder={t('Enter API base URL or token plan endpoint')}
+                              {...field}
+                              value={field.value || 'https://api.xiaomimimo.com'}
+                            />
+                            <div className='flex flex-wrap gap-2'>
+                              {[
+                                {
+                                  value: 'https://api.xiaomimimo.com',
+                                  label: 'Xiaomi MiMo Pay-as-you-go',
+                                },
+                                {
+                                  value: 'mimo-token-plan-cn',
+                                  label: 'Token Plan (China)',
+                                },
+                                {
+                                  value: 'mimo-token-plan-sgp',
+                                  label: 'Token Plan (Singapore)',
+                                },
+                                {
+                                  value: 'mimo-token-plan-ams',
+                                  label: 'Token Plan (Europe)',
+                                },
+                              ].map((option) => (
+                                <Button
+                                  key={option.value}
+                                  type='button'
+                                  variant='outline'
+                                  size='sm'
+                                  className='h-8'
+                                  onClick={() => field.onChange(option.value)}
+                                >
+                                  {option.label}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
                         </FormControl>
                         <FormDescription>
                           {t(

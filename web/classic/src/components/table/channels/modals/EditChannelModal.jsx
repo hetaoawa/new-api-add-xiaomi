@@ -3478,34 +3478,20 @@ const EditChannelModal = (props) => {
 
                       {inputs.type === 58 && (
                         <div>
-                          <Form.Select
+                          <Form.Input
                             field='base_url'
                             label={t('API地址')}
-                            placeholder={t('请选择API地址')}
+                            placeholder={t(
+                              '请输入 API 地址，或填写 mimo-token-plan-cn / sgp / ams'
+                            )}
                             onChange={(value) =>
                               handleInputChange('base_url', value)
                             }
-                            optionList={[
-                              {
-                                value: XIAOMI_MIMO_DEFAULT_BASE_URL,
-                                label: 'Xiaomi MiMo Pay-as-you-go',
-                              },
-                              {
-                                value: XIAOMI_MIMO_TOKEN_PLAN_CN_BASE_URL,
-                                label: 'Xiaomi MiMo Token Plan (China)',
-                              },
-                              {
-                                value: XIAOMI_MIMO_TOKEN_PLAN_SGP_BASE_URL,
-                                label: 'Xiaomi MiMo Token Plan (Singapore)',
-                              },
-                              {
-                                value: XIAOMI_MIMO_TOKEN_PLAN_AMS_BASE_URL,
-                                label: 'Xiaomi MiMo Token Plan (Europe)',
-                              },
-                            ]}
-                            defaultValue={XIAOMI_MIMO_DEFAULT_BASE_URL}
+                            showClear
                             disabled={isIonetLocked}
-                            allowCreate
+                            extraText={t(
+                              '可直接输入自定义端点；也可填写 https://api.xiaomimimo.com、mimo-token-plan-cn、mimo-token-plan-sgp、mimo-token-plan-ams'
+                            )}
                           />
                         </div>
                       )}
