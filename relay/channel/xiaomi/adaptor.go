@@ -51,7 +51,7 @@ func (a *Adaptor) GetRequestURL(info *relaycommon.RelayInfo) (string, error) {
 			case relayconstant.RelayModeEmbeddings:
 				return fmt.Sprintf("%s/embeddings", specialPlan.OpenAIBaseURL), nil
 			case relayconstant.RelayModeResponses:
-				return fmt.Sprintf("%s/responses", specialPlan.OpenAIBaseURL), nil
+				return fmt.Sprintf("%s/chat/completions", specialPlan.OpenAIBaseURL), nil
 			case relayconstant.RelayModeResponsesCompact:
 				return fmt.Sprintf("%s/responses/compact", specialPlan.OpenAIBaseURL), nil
 			default:
