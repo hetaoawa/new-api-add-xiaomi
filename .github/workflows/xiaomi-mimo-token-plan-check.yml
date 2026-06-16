@@ -11,13 +11,6 @@ on:
       - 'relay/channel/xiaomi/**'
       - '.github/workflows/xiaomi-mimo-token-plan-check.yml'
   push:
-    paths:
-      - 'constant/channel.go'
-      - 'controller/channel.go'
-      - 'controller/channel_upstream_update.go'
-      - 'controller/channel_upstream_update_test.go'
-      - 'relay/channel/xiaomi/**'
-      - '.github/workflows/xiaomi-mimo-token-plan-check.yml'
 
 jobs:
   go-test:
