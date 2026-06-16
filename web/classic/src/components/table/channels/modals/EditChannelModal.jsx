@@ -27,7 +27,10 @@ import {
   verifyJSON,
 } from '../../../../helpers';
 import { useIsMobile } from '../../../../hooks/common/useIsMobile';
-import { CHANNEL_OPTIONS, MODEL_FETCHABLE_CHANNEL_TYPES } from '../../../../constants';
+import {
+  CHANNEL_OPTIONS,
+  MODEL_FETCHABLE_CHANNEL_TYPES,
+} from '../../../../constants';
 import {
   SideSheet,
   Space,
@@ -3493,6 +3496,56 @@ const EditChannelModal = (props) => {
                               '可直接输入自定义端点；也可填写 https://api.xiaomimimo.com、mimo-token-plan-cn、mimo-token-plan-sgp、mimo-token-plan-ams'
                             )}
                           />
+                          <Space wrap className='mt-2'>
+                            <Button
+                              size='small'
+                              type='tertiary'
+                              onClick={() =>
+                                handleInputChange(
+                                  'base_url',
+                                  XIAOMI_MIMO_DEFAULT_BASE_URL,
+                                )
+                              }
+                            >
+                              Xiaomi MiMo Pay-as-you-go
+                            </Button>
+                            <Button
+                              size='small'
+                              type='tertiary'
+                              onClick={() =>
+                                handleInputChange(
+                                  'base_url',
+                                  XIAOMI_MIMO_TOKEN_PLAN_CN_BASE_URL,
+                                )
+                              }
+                            >
+                              Token Plan (China)
+                            </Button>
+                            <Button
+                              size='small'
+                              type='tertiary'
+                              onClick={() =>
+                                handleInputChange(
+                                  'base_url',
+                                  XIAOMI_MIMO_TOKEN_PLAN_SGP_BASE_URL,
+                                )
+                              }
+                            >
+                              Token Plan (Singapore)
+                            </Button>
+                            <Button
+                              size='small'
+                              type='tertiary'
+                              onClick={() =>
+                                handleInputChange(
+                                  'base_url',
+                                  XIAOMI_MIMO_TOKEN_PLAN_AMS_BASE_URL,
+                                )
+                              }
+                            >
+                              Token Plan (Europe)
+                            </Button>
+                          </Space>
                         </div>
                       )}
                     </div>
