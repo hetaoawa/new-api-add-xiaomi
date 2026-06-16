@@ -1,6 +1,7 @@
 name: Xiaomi MiMo Token Plan Check
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - 'constant/channel.go'
@@ -17,7 +18,6 @@ on:
       - 'controller/channel_upstream_update_test.go'
       - 'relay/channel/xiaomi/**'
       - '.github/workflows/xiaomi-mimo-token-plan-check.yml'
-  workflow_dispatch:
 
 jobs:
   go-test:
