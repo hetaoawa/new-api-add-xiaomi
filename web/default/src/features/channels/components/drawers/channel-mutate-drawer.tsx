@@ -1777,33 +1777,37 @@ export function ChannelMutateDrawer({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>{t('API Base URL *')}</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          value={field.value || 'https://api.xiaomimimo.com'}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value='https://api.xiaomimimo.com'>
-                              Xiaomi MiMo Pay-as-you-go
-                            </SelectItem>
-                            <SelectItem value='mimo-token-plan-cn'>
-                              Xiaomi MiMo Token Plan (China)
-                            </SelectItem>
-                            <SelectItem value='mimo-token-plan-sgp'>
-                              Xiaomi MiMo Token Plan (Singapore)
-                            </SelectItem>
-                            <SelectItem value='mimo-token-plan-ams'>
-                              Xiaomi MiMo Token Plan (Europe)
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <FormControl>
+                          <Combobox
+                            options={[
+                              {
+                                value: 'https://api.xiaomimimo.com',
+                                label: 'Xiaomi MiMo Pay-as-you-go',
+                              },
+                              {
+                                value: 'mimo-token-plan-cn',
+                                label: 'Xiaomi MiMo Token Plan (China)',
+                              },
+                              {
+                                value: 'mimo-token-plan-sgp',
+                                label: 'Xiaomi MiMo Token Plan (Singapore)',
+                              },
+                              {
+                                value: 'mimo-token-plan-ams',
+                                label: 'Xiaomi MiMo Token Plan (Europe)',
+                              },
+                            ]}
+                            value={field.value || 'https://api.xiaomimimo.com'}
+                            onValueChange={field.onChange}
+                            placeholder={t('Enter or select API base URL')}
+                            searchPlaceholder={t('Search or enter API base URL')}
+                            emptyText={t('No preset endpoint found.')}
+                            allowCustomValue
+                          />
+                        </FormControl>
                         <FormDescription>
                           {t(
-                            'Pay-as-you-go uses the default public endpoint. Token Plan must use the region-specific endpoint shown in the MiMo subscription console, and keys cannot be mixed across billing types or regions.'
+                            'Pay-as-you-go uses the default public endpoint. Token Plan must use the region-specific endpoint shown in the MiMo subscription console, and custom proxy or enterprise endpoints can also be entered here.'
                           )}
                         </FormDescription>
                         <FormMessage />

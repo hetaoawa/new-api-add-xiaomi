@@ -10,7 +10,7 @@
 import * as LobeIcons from '@lobehub/icons'
 
 const ICON_ALIASES: Record<string, string> = {
-  XiaomiMiMo: 'Xiaomi',
+  Xiaomi: 'XiaomiMiMo',
 }
 
 /**
@@ -87,7 +87,7 @@ export function getLobeIcon(
 
   const resolvedName =
     ICON_ALIASES[trimmedName] ||
-    trimmedName.replace(/^XiaomiMiMo(?=\.|$)/, 'Xiaomi')
+    trimmedName.replace(/^Xiaomi(?=\.|$)/, 'XiaomiMiMo')
 
   // Parse component path and chained properties
   const segments = resolvedName.split('.')

@@ -3505,6 +3505,7 @@ const EditChannelModal = (props) => {
                             ]}
                             defaultValue={XIAOMI_MIMO_DEFAULT_BASE_URL}
                             disabled={isIonetLocked}
+                            allowCreate
                           />
                         </div>
                       )}
