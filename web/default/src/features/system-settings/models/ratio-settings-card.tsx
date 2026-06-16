@@ -1,4 +1,22 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+/*
+Copyright (C) 2023-2026 QuantumNous
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+For commercial licensing, please contact support@quantumnous.com
+*/
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as z from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -8,6 +26,7 @@ import { toast } from 'sonner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/confirm-dialog'
 import { resetModelRatios } from '../api'
+import { SettingsPageTitleStatusPortal } from '../components/settings-page-context'
 import { SettingsSection } from '../components/settings-section'
 import { useUpdateOption } from '../hooks/use-update-option'
 import { GroupRatioForm } from './group-ratio-form'
@@ -16,180 +35,115 @@ import { ToolPriceSettings } from './tool-price-settings'
 import { UpstreamRatioSync } from './upstream-ratio-sync'
 import {
   formatJsonForTextarea,
+  type JsonValidationError,
   normalizeJsonString,
   validateJsonString,
 } from './utils'
 
-const modelSchema = z.object({
-  ModelPrice: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  ModelRatio: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  CacheRatio: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  CreateCacheRatio: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  CompletionRatio: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  ImageRatio: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  AudioRatio: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  AudioCompletionRatio: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  ExposeRatioEnabled: z.boolean(),
-  BillingMode: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  BillingExpr: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-})
+type Translate = (key: string, options?: Record<string, unknown>) => string
 
-const groupSchema = z.object({
-  GroupRatio: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
+function formatJsonValidationError(
+  t: Translate,
+  error?: JsonValidationError,
+  fallback = 'Invalid JSON'
+) {
+  if (!error) return t(fallback)
+
+  if (error.type === 'required') return t('Value is required')
+  if (error.type === 'structure') {
+    return t(
+      fallback === 'Invalid JSON' ? 'JSON structure is invalid' : fallback
+    )
+  }
+
+  const parts = [
+    error.line && error.column
+      ? t('JSON is invalid at line {{line}}, column {{column}}.', {
+          line: error.line,
+          column: error.column,
+        })
+      : error.position !== undefined
+        ? t('JSON is invalid at position {{position}}.', {
+            position: error.position,
+          })
+        : t('JSON is invalid. Please check the syntax.'),
+  ]
+
+  if (error.missingCommaLine) {
+    parts.push(
+      t('Check line {{line}} for a missing comma.', {
+        line: error.missingCommaLine,
+      })
+    )
+  }
+
+  return parts.join(' ')
+}
+
+function createJsonStringField(
+  t: Translate,
+  options?: Parameters<typeof validateJsonString>[1]
+) {
+  return z.string().superRefine((value, ctx) => {
+    const result = validateJsonString(value, options)
     if (!result.valid) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
+        message: formatJsonValidationError(t, result.error, result.message),
       })
     }
-  }),
-  TopupGroupRatio: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  UserUsableGroups: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  GroupGroupRatio: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-  AutoGroups: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value, {
+  })
+}
+
+const createModelSchema = (t: Translate) =>
+  z.object({
+    ModelPrice: createJsonStringField(t),
+    ModelRatio: createJsonStringField(t),
+    CacheRatio: createJsonStringField(t),
+    CreateCacheRatio: createJsonStringField(t),
+    CompletionRatio: createJsonStringField(t),
+    ImageRatio: createJsonStringField(t),
+    AudioRatio: createJsonStringField(t),
+    AudioCompletionRatio: createJsonStringField(t),
+    ExposeRatioEnabled: z.boolean(),
+    BillingMode: createJsonStringField(t),
+    BillingExpr: createJsonStringField(t),
+  })
+
+const createGroupSchema = (t: Translate) =>
+  z.object({
+    GroupRatio: createJsonStringField(t),
+    TopupGroupRatio: createJsonStringField(t),
+    UserUsableGroups: createJsonStringField(t),
+    GroupGroupRatio: createJsonStringField(t),
+    AutoGroups: createJsonStringField(t, {
       predicate: (parsed) =>
         Array.isArray(parsed) &&
         parsed.every((item) => typeof item === 'string'),
       predicateMessage: 'Expected a JSON array of group identifiers',
-    })
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON array',
-      })
-    }
-  }),
-  DefaultUseAutoGroup: z.boolean(),
-  GroupSpecialUsableGroup: z.string().superRefine((value, ctx) => {
-    const result = validateJsonString(value)
-    if (!result.valid) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: result.message || 'Invalid JSON',
-      })
-    }
-  }),
-})
+    }),
+    DefaultUseAutoGroup: z.boolean(),
+    GroupSpecialUsableGroup: createJsonStringField(t),
+  })
 
-type ModelFormValues = z.infer<typeof modelSchema>
-type GroupFormValues = z.infer<typeof groupSchema>
+type ModelFormValues = z.infer<ReturnType<typeof createModelSchema>>
+type GroupFormValues = z.infer<ReturnType<typeof createGroupSchema>>
+type RatioTabId = 'models' | 'groups' | 'tool-prices' | 'upstream-sync'
 
 type RatioSettingsCardProps = {
   modelDefaults: ModelFormValues
   groupDefaults: GroupFormValues
   toolPricesDefault: string
+  titleKey?: string
+  visibleTabs?: RatioTabId[]
 }
 
 export function RatioSettingsCard({
   modelDefaults,
   groupDefaults,
   toolPricesDefault,
+  titleKey = 'Pricing Ratios',
+  visibleTabs = ['models', 'groups', 'tool-prices', 'upstream-sync'],
 }: RatioSettingsCardProps) {
   const { t } = useTranslation()
   const updateOption = useUpdateOption()
@@ -200,7 +154,7 @@ export function RatioSettingsCard({
     mutationFn: resetModelRatios,
     onSuccess: (data) => {
       if (data.success) {
-        toast.success(t('Model ratios reset successfully'))
+        toast.success(t('Model prices reset successfully'))
         queryClient.invalidateQueries({ queryKey: ['system-options'] })
         setConfirmOpen(false)
       } else {
@@ -227,6 +181,9 @@ export function RatioSettingsCard({
     BillingMode: normalizeJsonString(modelDefaults.BillingMode),
     BillingExpr: normalizeJsonString(modelDefaults.BillingExpr),
   })
+  const [savedModelValues, setSavedModelValues] = useState(
+    modelNormalizedDefaults.current
+  )
 
   const groupNormalizedDefaults = useRef({
     GroupRatio: normalizeJsonString(groupDefaults.GroupRatio),
@@ -239,6 +196,8 @@ export function RatioSettingsCard({
       groupDefaults.GroupSpecialUsableGroup
     ),
   })
+  const modelSchema = useMemo(() => createModelSchema(t), [t])
+  const groupSchema = useMemo(() => createGroupSchema(t), [t])
 
   const modelForm = useForm<ModelFormValues>({
     resolver: zodResolver(modelSchema),
@@ -292,6 +251,7 @@ export function RatioSettingsCard({
       BillingMode: normalizeJsonString(modelDefaults.BillingMode),
       BillingExpr: normalizeJsonString(modelDefaults.BillingExpr),
     }
+    setSavedModelValues(modelNormalizedDefaults.current)
 
     modelForm.reset({
       ...modelDefaults,
@@ -363,12 +323,20 @@ export function RatioSettingsCard({
         (key) => normalized[key] !== modelNormalizedDefaults.current[key]
       )
 
+      if (updates.length === 0) {
+        toast.info(t('No model price changes to save'))
+        return
+      }
+
       for (const key of updates) {
         const apiKey = apiKeyMap[key as string] || (key as string)
         await updateOption.mutateAsync({ key: apiKey, value: normalized[key] })
       }
+
+      modelNormalizedDefaults.current = normalized
+      setSavedModelValues(normalized)
     },
-    [updateOption]
+    [t, updateOption]
   )
 
   const saveGroupRatios = useCallback(
@@ -414,67 +382,100 @@ export function RatioSettingsCard({
     resetMutate()
   }, [resetMutate])
 
+  const tabLabels: Record<RatioTabId, string> = {
+    models: 'Model prices',
+    groups: 'Group ratios',
+    'tool-prices': 'Tool prices',
+    'upstream-sync': 'Upstream price sync',
+  }
+  const tabsGridClass =
+    {
+      1: 'grid-cols-1',
+      2: 'grid-cols-2',
+      3: 'grid-cols-3',
+      4: 'grid-cols-4',
+    }[visibleTabs.length] ?? 'grid-cols-4'
+  const defaultTab = visibleTabs[0] ?? 'models'
+
+  const renderTabContent = (tab: RatioTabId) => {
+    if (tab === 'models') {
+      return (
+        <ModelRatioForm
+          form={modelForm}
+          savedValues={savedModelValues}
+          onSave={saveModelRatios}
+          onReset={handleResetRatios}
+          isSaving={updateOption.isPending}
+          isResetting={resetMutation.isPending}
+        />
+      )
+    }
+    if (tab === 'groups') {
+      return (
+        <GroupRatioForm
+          form={groupForm}
+          onSave={saveGroupRatios}
+          isSaving={updateOption.isPending}
+        />
+      )
+    }
+    if (tab === 'tool-prices') {
+      return <ToolPriceSettings defaultValue={toolPricesDefault} />
+    }
+    return (
+      <UpstreamRatioSync
+        modelRatios={{
+          ModelPrice: modelDefaults.ModelPrice,
+          ModelRatio: modelDefaults.ModelRatio,
+          CompletionRatio: modelDefaults.CompletionRatio,
+          CacheRatio: modelDefaults.CacheRatio,
+          CreateCacheRatio: modelDefaults.CreateCacheRatio,
+          ImageRatio: modelDefaults.ImageRatio,
+          AudioRatio: modelDefaults.AudioRatio,
+          AudioCompletionRatio: modelDefaults.AudioCompletionRatio,
+          'billing_setting.billing_mode': modelDefaults.BillingMode,
+          'billing_setting.billing_expr': modelDefaults.BillingExpr,
+        }}
+      />
+    )
+  }
+
+  const renderTabSwitcher = () => (
+    <TabsList className={`grid w-fit max-w-full ${tabsGridClass}`}>
+      {visibleTabs.map((tab) => (
+        <TabsTrigger key={tab} value={tab}>
+          {t(tabLabels[tab])}
+        </TabsTrigger>
+      ))}
+    </TabsList>
+  )
+
   return (
-    <SettingsSection
-      title={t('Pricing Ratios')}
-      description={t(
-        'Configure model, caching, and group ratios used for billing'
+    <>
+      {visibleTabs.length === 1 ? (
+        <SettingsSection title={t(titleKey)}>
+          {renderTabContent(defaultTab)}
+        </SettingsSection>
+      ) : (
+        <Tabs defaultValue={defaultTab} className='space-y-6'>
+          <SettingsPageTitleStatusPortal>
+            {renderTabSwitcher()}
+          </SettingsPageTitleStatusPortal>
+
+          <SettingsSection title={t(titleKey)}>
+            {visibleTabs.map((tab) => (
+              <TabsContent key={tab} value={tab}>
+                {renderTabContent(tab)}
+              </TabsContent>
+            ))}
+          </SettingsSection>
+        </Tabs>
       )}
-    >
-      <Tabs defaultValue='models' className='space-y-6'>
-        <TabsList className='grid w-full grid-cols-4'>
-          <TabsTrigger value='models'>{t('Model ratios')}</TabsTrigger>
-          <TabsTrigger value='groups'>{t('Group ratios')}</TabsTrigger>
-          <TabsTrigger value='tool-prices'>{t('Tool prices')}</TabsTrigger>
-          <TabsTrigger value='upstream-sync'>
-            {t('Upstream price sync')}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value='models'>
-          <ModelRatioForm
-            form={modelForm}
-            onSave={saveModelRatios}
-            onReset={handleResetRatios}
-            isSaving={updateOption.isPending}
-            isResetting={resetMutation.isPending}
-          />
-        </TabsContent>
-
-        <TabsContent value='groups'>
-          <GroupRatioForm
-            form={groupForm}
-            onSave={saveGroupRatios}
-            isSaving={updateOption.isPending}
-          />
-        </TabsContent>
-
-        <TabsContent value='tool-prices'>
-          <ToolPriceSettings defaultValue={toolPricesDefault} />
-        </TabsContent>
-
-        <TabsContent value='upstream-sync'>
-          <UpstreamRatioSync
-            modelRatios={{
-              ModelPrice: modelDefaults.ModelPrice,
-              ModelRatio: modelDefaults.ModelRatio,
-              CompletionRatio: modelDefaults.CompletionRatio,
-              CacheRatio: modelDefaults.CacheRatio,
-              CreateCacheRatio: modelDefaults.CreateCacheRatio,
-              ImageRatio: modelDefaults.ImageRatio,
-              AudioRatio: modelDefaults.AudioRatio,
-              AudioCompletionRatio: modelDefaults.AudioCompletionRatio,
-              'billing_setting.billing_mode': modelDefaults.BillingMode,
-              'billing_setting.billing_expr': modelDefaults.BillingExpr,
-            }}
-          />
-        </TabsContent>
-      </Tabs>
 
       <ConfirmDialog
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
-        title={t('Reset all model ratios?')}
+        title={t('Reset all model prices?')}
         desc={t(
           'This will clear custom pricing ratios and revert to upstream defaults.'
         )}
@@ -483,6 +484,6 @@ export function RatioSettingsCard({
         handleConfirm={handleConfirmReset}
         confirmText={t('Reset')}
       />
-    </SettingsSection>
+    </>
   )
 }

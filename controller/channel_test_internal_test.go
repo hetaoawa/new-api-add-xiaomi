@@ -1,4 +1,4 @@
-package controller
+﻿package controller
 
 import (
 	"net/http/httptest"
@@ -98,4 +98,15 @@ func TestBuildTestRequestDoesNotUseResponsesRequestForXiaomiTTS(t *testing.T) {
 
 	_, ok := req.(*dto.OpenAIResponsesRequest)
 	require.False(t, ok)
+}
+
+func TestResolveChannelTestUserIDUsesRequestUser(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	ctx, _ := gin.CreateTestContext(httptest.NewRecorder())
+	ctx.Set("id", 2)
+
+	userID, err := resolveChannelTestUserID(ctx)
+
+	require.NoError(t, err)
+	require.Equal(t, 2, userID)
 }

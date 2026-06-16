@@ -1,17 +1,28 @@
+/*
+Copyright (C) 2023-2026 QuantumNous
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+For commercial licensing, please contact support@quantumnous.com
+*/
 import { useMemo } from 'react'
 import { Tag as TagIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useSystemConfigStore } from '@/stores/system-config-store'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { StaticDataTable } from '@/components/data-table'
 import {
   BILLING_PRICING_VARS,
   MATCH_CONTAINS,
@@ -179,7 +190,7 @@ export function DynamicPricingBreakdown({
     return (
       <section className='min-w-0 py-4'>
         <div className='mb-3 flex items-center gap-2'>
-          <span className='inline-flex size-6 items-center justify-center rounded-full bg-amber-100 text-amber-700 shadow-sm dark:bg-amber-500/20 dark:text-amber-300'>
+          <span className='inline-flex size-6 items-center justify-center rounded-lg bg-amber-100 text-amber-700 shadow-sm dark:bg-amber-500/20 dark:text-amber-300'>
             <TagIcon className='size-3.5' />
           </span>
           <div>
@@ -212,7 +223,7 @@ export function DynamicPricingBreakdown({
   return (
     <section className='min-w-0 py-3 sm:py-4'>
       <div className='mb-3 flex items-start gap-2 sm:mb-4'>
-        <span className='mt-0.5 inline-flex size-6 items-center justify-center rounded-full bg-amber-100 text-amber-700 shadow-sm dark:bg-amber-500/20 dark:text-amber-300'>
+        <span className='mt-0.5 inline-flex size-6 items-center justify-center rounded-lg bg-amber-100 text-amber-700 shadow-sm dark:bg-amber-500/20 dark:text-amber-300'>
           <TagIcon className='size-3.5' />
         </span>
         <div>
@@ -242,8 +253,7 @@ export function DynamicPricingBreakdown({
                   key={`tier-mobile-${i}`}
                   className={cn(
                     'rounded-md border p-2',
-                    isMatched &&
-                      'border-emerald-500/40 bg-emerald-500/10'
+                    isMatched && 'border-emerald-500/40 bg-emerald-500/10'
                   )}
                 >
                   <div className='mb-1.5 flex flex-wrap items-center gap-1.5'>
@@ -290,86 +300,82 @@ export function DynamicPricingBreakdown({
               )
             })}
           </div>
-          <div className='hidden overflow-x-auto sm:block'>
-            <Table className='text-sm'>
-              <TableHeader>
-                <TableRow className='hover:bg-transparent'>
-                  <TableHead className='text-muted-foreground py-2 text-[10px] font-medium tracking-wider uppercase'>
-                    {t('Tier')}
-                  </TableHead>
-                  {visiblePriceFields.map((v) => (
-                    <TableHead
-                      key={v.field}
-                      className='text-muted-foreground py-2 text-right text-[10px] font-medium tracking-wider uppercase'
-                    >
-                      {t(v.shortLabel)}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tiers.map((tier, i) => {
-                  const condSummary = formatConditionSummary(tier.conditions, t)
+          <StaticDataTable
+            className='hidden rounded-none border-0 sm:block'
+            tableClassName='text-sm'
+            headerRowClassName='hover:bg-transparent'
+            data={tiers}
+            getRowKey={(_tier, index) => `tier-${index}`}
+            getRowClassName={(tier) => {
+              const isMatched =
+                normalizedMatchedTierLabel !== '' &&
+                normalizeTierLabel(tier.label) === normalizedMatchedTierLabel
+              return cn(
+                isMatched &&
+                  'bg-emerald-50/70 hover:bg-emerald-50/70 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/10'
+              )
+            }}
+            columns={[
+              {
+                id: 'tier',
+                header: t('Tier'),
+                className: 'text-muted-foreground py-2 font-medium',
+                cellClassName: 'py-2.5 align-top',
+                cell: (tier) => {
+                  const condSummary = formatConditionSummary(
+                    tier.conditions,
+                    t
+                  )
                   const isMatched =
                     normalizedMatchedTierLabel !== '' &&
-                    normalizeTierLabel(tier.label) ===
-                      normalizedMatchedTierLabel
+                    normalizeTierLabel(tier.label) === normalizedMatchedTierLabel
                   return (
-                    <TableRow
-                      key={`tier-${i}`}
-                      className={cn(
-                        isMatched &&
-                          'bg-emerald-50/70 hover:bg-emerald-50/70 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/10'
-                      )}
-                    >
-                      <TableCell className='py-2.5 align-top'>
-                        <div className='flex flex-wrap items-center gap-1.5'>
+                    <>
+                      <div className='flex flex-wrap items-center gap-1.5'>
+                        <Badge
+                          variant='secondary'
+                          className='bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'
+                        >
+                          {tier.label || t('Default')}
+                        </Badge>
+                        {isMatched && (
                           <Badge
                             variant='secondary'
-                            className='bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'
+                            className='bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
                           >
-                            {tier.label || t('Default')}
+                            {t('Matched')}
                           </Badge>
-                          {isMatched && (
-                            <Badge
-                              variant='secondary'
-                              className='bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
-                            >
-                              {t('Matched')}
-                            </Badge>
-                          )}
-                        </div>
-                        {condSummary && (
-                          <div className='text-muted-foreground mt-1 text-xs'>
-                            {condSummary}
-                          </div>
                         )}
-                      </TableCell>
-                      {visiblePriceFields.map((v) => {
-                        const value = Number(
-                          tier[v.field as string as keyof ParsedTier] || 0
-                        )
-                        return (
-                          <TableCell
-                            key={v.field}
-                            className='py-2.5 text-right align-top font-mono'
-                          >
-                            {value > 0 ? (
-                              <span className='font-semibold'>
-                                {`${symbol}${(value * rate).toFixed(4)}`}
-                              </span>
-                            ) : (
-                              '-'
-                            )}
-                          </TableCell>
-                        )
-                      })}
-                    </TableRow>
+                      </div>
+                      {condSummary && (
+                        <div className='text-muted-foreground mt-1 text-xs'>
+                          {condSummary}
+                        </div>
+                      )}
+                    </>
                   )
-                })}
-              </TableBody>
-            </Table>
-          </div>
+                },
+              },
+              ...visiblePriceFields.map((v, index) => ({
+                id: v.field ?? `price-${index}`,
+                header: t(v.shortLabel),
+                className: 'text-muted-foreground py-2 text-right font-medium',
+                cellClassName: 'py-2.5 text-right align-top font-mono',
+                cell: (tier: ParsedTier) => {
+                  const value = Number(
+                    tier[v.field as string as keyof ParsedTier] || 0
+                  )
+                  return value > 0 ? (
+                    <span className='font-semibold'>
+                      {`${symbol}${(value * rate).toFixed(4)}`}
+                    </span>
+                  ) : (
+                    '-'
+                  )
+                },
+              })),
+            ]}
+          />
         </div>
       )}
 

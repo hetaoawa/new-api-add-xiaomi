@@ -1,3 +1,21 @@
+/*
+Copyright (C) 2023-2026 QuantumNous
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+For commercial licensing, please contact support@quantumnous.com
+*/
 import { useState, useEffect, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -5,15 +23,9 @@ import { toast } from 'sonner'
 import { getUserModels } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { ComboboxInput } from '@/components/ui/combobox-input'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Dialog } from '@/components/dialog'
 
 const APP_CONFIGS = {
   claude: {
@@ -133,75 +145,78 @@ export function CCSwitchDialog(props: Props) {
   }
 
   return (
-    <Dialog open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogContent className='sm:max-w-md'>
-        <DialogHeader>
-          <DialogTitle>{t('Import to CC Switch')}</DialogTitle>
-        </DialogHeader>
-
-        <div className='space-y-4'>
-          <div className='space-y-2'>
-            <Label>{t('Application')}</Label>
-            <RadioGroup
-              value={app}
-              onValueChange={handleAppChange}
-              className='flex gap-4'
-            >
-              {(
-                Object.entries(APP_CONFIGS) as [
-                  AppType,
-                  (typeof APP_CONFIGS)[AppType],
-                ][]
-              ).map(([key, cfg]) => (
-                <div key={key} className='flex items-center gap-2'>
-                  <RadioGroupItem value={key} id={`app-${key}`} />
-                  <Label htmlFor={`app-${key}`} className='cursor-pointer'>
-                    {cfg.label}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-
-          <div className='space-y-2'>
-            <Label>{t('Name')}</Label>
-            <ComboboxInput
-              options={[]}
-              value={name}
-              onValueChange={setName}
-              placeholder={currentConfig.defaultName}
-              emptyText=''
-            />
-          </div>
-
-          {currentConfig.modelFields.map((field) => (
-            <div key={field.key} className='space-y-2'>
-              <Label>
-                {t(field.labelKey)}
-                {field.required && (
-                  <span className='text-destructive ml-0.5'>*</span>
-                )}
-              </Label>
-              <ComboboxInput
-                options={modelOptions}
-                value={models[field.key] || ''}
-                onValueChange={(v) =>
-                  setModels((prev) => ({ ...prev, [field.key]: v }))
-                }
-                placeholder={t('Select or enter model name')}
-                emptyText={t('No models found')}
-              />
-            </div>
-          ))}
-        </div>
-
-        <DialogFooter>
+    <Dialog
+      open={props.open}
+      onOpenChange={props.onOpenChange}
+      title={t('Import to CC Switch')}
+      contentClassName='sm:max-w-md'
+      contentHeight='auto'
+      bodyClassName='space-y-4'
+      footer={
+        <>
           <Button variant='outline' onClick={() => props.onOpenChange(false)}>
             {t('Cancel')}
           </Button>
           <Button onClick={handleSubmit}>{t('Open CC Switch')}</Button>
-        </DialogFooter>
-      </DialogContent>
+        </>
+      }
+    >
+      <div className='space-y-4'>
+        <div className='space-y-2'>
+          <Label>{t('Application')}</Label>
+          <RadioGroup
+            value={app}
+            onValueChange={handleAppChange}
+            className='flex gap-4'
+          >
+            {(
+              Object.entries(APP_CONFIGS) as [
+                AppType,
+                (typeof APP_CONFIGS)[AppType],
+              ][]
+            ).map(([key, cfg]) => (
+              <div key={key} className='flex items-center gap-2'>
+                <RadioGroupItem value={key} id={`app-${key}`} />
+                <Label htmlFor={`app-${key}`} className='cursor-pointer'>
+                  {cfg.label}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+        </div>
+
+        <div className='space-y-2'>
+          <Label>{t('Name')}</Label>
+          <ComboboxInput
+            options={[]}
+            value={name}
+            onValueChange={setName}
+            placeholder={currentConfig.defaultName}
+            emptyText=''
+            allowCustomValue={true}
+          />
+        </div>
+
+        {currentConfig.modelFields.map((field) => (
+          <div key={field.key} className='space-y-2'>
+            <Label>
+              {t(field.labelKey)}
+              {field.required && (
+                <span className='text-destructive ml-0.5'>*</span>
+              )}
+            </Label>
+            <ComboboxInput
+              options={modelOptions}
+              value={models[field.key] || ''}
+              onValueChange={(v) =>
+                setModels((prev) => ({ ...prev, [field.key]: v }))
+              }
+              placeholder={t('Select or enter model name')}
+              emptyText={t('No models found')}
+            />
+          </div>
+        ))}
+      </div>
     </Dialog>
   )
 }

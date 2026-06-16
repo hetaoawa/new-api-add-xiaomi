@@ -1,3 +1,21 @@
+/*
+Copyright (C) 2023-2026 QuantumNous
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+For commercial licensing, please contact support@quantumnous.com
+*/
 import { type ColumnDef } from '@tanstack/react-table'
 import { useTranslation } from 'react-i18next'
 import { formatQuota, formatTimestamp } from '@/lib/format'
@@ -9,11 +27,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { DataTableColumnHeader } from '@/components/data-table'
 import { GroupBadge } from '@/components/group-badge'
 import { LongText } from '@/components/long-text'
-import { StatusBadge, dotColorMap } from '@/components/status-badge'
+import { StatusBadge } from '@/components/status-badge'
+import { TableId } from '@/components/table-id'
 import {
+  USER_STATUS,
   USER_STATUSES,
   USER_ROLES,
   isUserDeleted,
@@ -34,10 +53,8 @@ export function useUsersColumns(): ColumnDef<User>[] {
       id: 'select',
       header: ({ table }) => (
         <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
-          }
+          checked={table.getIsAllPageRowsSelected()}
+          indeterminate={table.getIsSomePageRowsSelected()}
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label='Select all'
           className='translate-y-[2px]'
@@ -53,23 +70,22 @@ export function useUsersColumns(): ColumnDef<User>[] {
       ),
       enableSorting: false,
       enableHiding: false,
-      meta: { label: t('Select') },
+      size: 40,
     },
     {
       accessorKey: 'id',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title='ID' />
-      ),
+      header: t('ID'),
       cell: ({ row }) => {
-        return <div className='w-[60px]'>{row.getValue('id')}</div>
+        return (
+          <TableId value={row.getValue('id') as number} className='w-[60px]' />
+        )
       },
-      meta: { label: t('ID'), mobileHidden: true },
+      size: 80,
+      meta: { mobileHidden: true },
     },
     {
       accessorKey: 'username',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('Username')} />
-      ),
+      header: t('Username'),
       cell: ({ row }) => {
         const username = row.getValue('username') as string
         const displayName = row.original.display_name
@@ -83,10 +99,10 @@ export function useUsersColumns(): ColumnDef<User>[] {
               </LongText>
               {remark && (
                 <Tooltip>
-                  <TooltipTrigger asChild>
-                    <StatusBadge variant='success' copyable={false}>
-                      <LongText className='max-w-[80px]'>{remark}</LongText>
-                    </StatusBadge>
+                  <TooltipTrigger
+                    render={<StatusBadge variant='success' copyable={false} />}
+                  >
+                    <LongText className='max-w-[80px]'>{remark}</LongText>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className='text-xs'>{remark}</p>
@@ -103,19 +119,18 @@ export function useUsersColumns(): ColumnDef<User>[] {
         )
       },
       enableHiding: false,
-      meta: { label: t('Username'), mobileTitle: true },
+      size: 220,
+      meta: { mobileTitle: true },
     },
     {
       accessorKey: 'status',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('Status')} />
-      ),
+      header: t('Status'),
       cell: ({ row }) => {
         const user = row.original
         const requestCount = user.request_count
 
         const statusConfig = isUserDeleted(user)
-          ? USER_STATUSES.DELETED
+          ? USER_STATUSES[USER_STATUS.DELETED]
           : USER_STATUSES[user.status as keyof typeof USER_STATUSES]
 
         if (!statusConfig) {
@@ -124,15 +139,12 @@ export function useUsersColumns(): ColumnDef<User>[] {
 
         return (
           <Tooltip>
-            <TooltipTrigger asChild>
-              <div className='cursor-help'>
-                <StatusBadge
-                  label={t(statusConfig.labelKey)}
-                  variant={statusConfig.variant}
-                  showDot={statusConfig.showDot}
-                  copyable={false}
-                />
-              </div>
+            <TooltipTrigger render={<div className='-ml-1.5 cursor-help' />}>
+              <StatusBadge
+                label={t(statusConfig.labelKey)}
+                variant={statusConfig.variant}
+                copyable={false}
+              />
             </TooltipTrigger>
             <TooltipContent>
               <p className='text-xs'>
@@ -146,14 +158,13 @@ export function useUsersColumns(): ColumnDef<User>[] {
         return value.includes(String(row.getValue(id)))
       },
       enableSorting: false,
-      meta: { label: t('Status'), mobileBadge: true },
+      size: 120,
+      meta: { mobileBadge: true },
     },
     {
       id: 'quota',
       accessorKey: 'quota',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('Quota')} />
-      ),
+      header: t('Quota'),
       cell: ({ row }) => {
         const user = row.original
         const used = user.used_quota
@@ -167,27 +178,28 @@ export function useUsersColumns(): ColumnDef<User>[] {
               label={t('No Quota')}
               variant='neutral'
               copyable={false}
+              className='-ml-1.5'
             />
           )
         }
 
         return (
           <Tooltip>
-            <TooltipTrigger asChild>
-              <div className='w-[150px] cursor-help space-y-1'>
-                <div className='flex justify-between text-xs'>
-                  <span className='font-medium tabular-nums'>
-                    {formatQuota(remaining)}
-                  </span>
-                  <span className='text-muted-foreground tabular-nums'>
-                    {formatQuota(total)}
-                  </span>
-                </div>
-                <Progress
-                  value={percentage}
-                  className={cn('h-1.5', getQuotaProgressColor(percentage))}
-                />
+            <TooltipTrigger
+              render={<div className='w-[150px] cursor-help space-y-1' />}
+            >
+              <div className='flex justify-between text-xs'>
+                <span className='font-medium tabular-nums'>
+                  {formatQuota(remaining)}
+                </span>
+                <span className='text-muted-foreground tabular-nums'>
+                  {formatQuota(total)}
+                </span>
               </div>
+              <Progress
+                value={percentage}
+                className={cn('h-1.5', getQuotaProgressColor(percentage))}
+              />
             </TooltipTrigger>
             <TooltipContent>
               <div className='space-y-1 text-xs'>
@@ -208,13 +220,11 @@ export function useUsersColumns(): ColumnDef<User>[] {
           </Tooltip>
         )
       },
-      meta: { label: t('Quota') },
+      size: 170,
     },
     {
       accessorKey: 'group',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('Group')} />
-      ),
+      header: t('Group'),
       cell: ({ row }) => {
         const group = row.getValue('group') as string
         return <GroupBadge group={group} />
@@ -224,13 +234,11 @@ export function useUsersColumns(): ColumnDef<User>[] {
         const searchValue = String(value).toLowerCase()
         return group.includes(searchValue)
       },
-      meta: { label: t('Group') },
+      size: 140,
     },
     {
       accessorKey: 'role',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('Role')} />
-      ),
+      header: t('Role'),
       cell: ({ row }) => {
         const roleValue = row.getValue('role') as number
         const roleConfig = USER_ROLES[roleValue as keyof typeof USER_ROLES]
@@ -252,13 +260,11 @@ export function useUsersColumns(): ColumnDef<User>[] {
         return value.includes(String(row.getValue(id)))
       },
       enableSorting: false,
-      meta: { label: t('Role') },
+      size: 120,
     },
     {
       id: 'invite_info',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('Invite Info')} />
-      ),
+      header: t('Invite Info'),
       cell: ({ row }) => {
         const user = row.original
         const affCount = user.aff_count || 0
@@ -266,69 +272,73 @@ export function useUsersColumns(): ColumnDef<User>[] {
         const inviterId = user.inviter_id || 0
 
         return (
-          <div className='flex items-center gap-1.5 text-xs font-medium'>
-            <span
-              className={cn(
-                'size-1.5 shrink-0 rounded-full',
-                dotColorMap.neutral
-              )}
-              aria-hidden='true'
-            />
+          <div className='flex min-w-[220px] flex-wrap items-center gap-1'>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <span className='text-muted-foreground cursor-help'>
-                  {t('Invited')}: {affCount}
-                </span>
-              </TooltipTrigger>
+              <TooltipTrigger
+                render={
+                  <StatusBadge
+                    label={`${t('Invited')}: ${affCount}`}
+                    variant='neutral'
+                    copyable={false}
+                    className='cursor-help'
+                  />
+                }
+              />
               <TooltipContent>
                 <p className='text-xs'>{t('Number of users invited')}</p>
               </TooltipContent>
             </Tooltip>
-            <span className='text-muted-foreground/30'>·</span>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <span className='text-muted-foreground cursor-help'>
-                  {t('Revenue')}: {formatQuota(affHistoryQuota)}
-                </span>
-              </TooltipTrigger>
+              <TooltipTrigger
+                render={
+                  <StatusBadge
+                    label={`${t('Revenue')}: ${formatQuota(affHistoryQuota)}`}
+                    variant='neutral'
+                    copyable={false}
+                    className='cursor-help'
+                  />
+                }
+              />
               <TooltipContent>
                 <p className='text-xs'>{t('Total invitation revenue')}</p>
               </TooltipContent>
             </Tooltip>
             {inviterId > 0 && (
-              <>
-                <span className='text-muted-foreground/30'>·</span>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className='text-muted-foreground cursor-help'>
-                      {t('Inviter')}: {inviterId}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className='text-xs'>
-                      {t('Invited by user ID')} {inviterId}
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <StatusBadge
+                      label={`${t('Inviter')}: ${inviterId}`}
+                      variant='neutral'
+                      copyable={false}
+                      className='cursor-help'
+                    />
+                  }
+                />
+                <TooltipContent>
+                  <p className='text-xs'>
+                    {t('Invited by user ID')} {inviterId}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
             )}
             {inviterId === 0 && (
-              <>
-                <span className='text-muted-foreground/30'>·</span>
-                <span className='text-muted-foreground'>{t('No Inviter')}</span>
-              </>
+              <StatusBadge
+                label={t('No Inviter')}
+                variant='neutral'
+                copyable={false}
+              />
             )}
           </div>
         )
       },
+      size: 240,
       enableSorting: false,
-      meta: { label: t('Invite Info'), mobileHidden: true },
+      meta: { mobileHidden: true },
     },
     {
       accessorKey: 'created_at',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('Created At')} />
-      ),
+      header: t('Created At'),
       cell: ({ row }) => {
         const ts = row.getValue('created_at') as number | undefined
         return (
@@ -337,13 +347,12 @@ export function useUsersColumns(): ColumnDef<User>[] {
           </span>
         )
       },
-      meta: { label: t('Created At'), mobileHidden: true },
+      size: 180,
+      meta: { mobileHidden: true },
     },
     {
       accessorKey: 'last_login_at',
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title={t('Last Login')} />
-      ),
+      header: t('Last Login'),
       cell: ({ row }) => {
         const ts = row.getValue('last_login_at') as number | undefined
         return (
@@ -352,12 +361,14 @@ export function useUsersColumns(): ColumnDef<User>[] {
           </span>
         )
       },
-      meta: { label: t('Last Login'), mobileHidden: true },
+      size: 180,
+      meta: { mobileHidden: true },
     },
     {
       id: 'actions',
+      header: () => t('Actions'),
       cell: ({ row }) => <DataTableRowActions row={row} />,
-      meta: { label: t('Actions') },
+      meta: { pinned: 'right' as const },
     },
   ]
 }

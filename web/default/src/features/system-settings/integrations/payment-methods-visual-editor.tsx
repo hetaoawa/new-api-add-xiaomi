@@ -1,3 +1,21 @@
+/*
+Copyright (C) 2023-2026 QuantumNous
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+For commercial licensing, please contact support@quantumnous.com
+*/
 import { useState, useMemo } from 'react'
 import { Lightbulb, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -9,13 +27,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  StaticDataTable,
+} from '@/components/data-table'
 import { safeJsonParseWithValidation } from '../utils/json-parser'
 import { isArray } from '../utils/json-validators'
 import {
@@ -213,11 +226,13 @@ export function PaymentMethodsVisualEditor({
         </div>
         <div className='flex gap-2'>
           <Popover>
-            <PopoverTrigger asChild>
-              <Button variant='outline' className='flex-1 sm:flex-none'>
-                <Lightbulb className='h-4 w-4 sm:mr-2' />
-                <span className='sm:inline'>{t('Templates')}</span>
-              </Button>
+            <PopoverTrigger
+              render={
+                <Button variant='outline' className='flex-1 sm:flex-none' />
+              }
+            >
+              <Lightbulb className='h-4 w-4 sm:mr-2' />
+              <span className='sm:inline'>{t('Templates')}</span>
             </PopoverTrigger>
             <PopoverContent className='w-60'>
               <div className='space-y-2'>
@@ -271,88 +286,95 @@ export function PaymentMethodsVisualEditor({
       ) : (
         <div className='rounded-md border'>
           {/* Desktop table view */}
-          <div className='hidden md:block'>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('Name')}</TableHead>
-                  <TableHead>{t('Type')}</TableHead>
-                  <TableHead>{t('Color')}</TableHead>
-                  <TableHead>{t('Min Top-up')}</TableHead>
-                  <TableHead className='text-right'>{t('Actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredMethods.map((method, index) => {
+          <StaticDataTable
+            className='hidden rounded-none border-0 md:block'
+            data={filteredMethods}
+            getRowKey={(method, index) => `${method.type}-${index}`}
+            columns={[
+              {
+                id: 'name',
+                header: t('Name'),
+                cellClassName: 'font-medium',
+                cell: (method) => method.name,
+              },
+              {
+                id: 'type',
+                header: t('Type'),
+                cell: (method) => (
+                  <code className='bg-muted rounded px-1.5 py-0.5 text-sm'>
+                    {method.type}
+                  </code>
+                ),
+              },
+              {
+                id: 'color',
+                header: t('Color'),
+                cell: (method) => {
                   const colorPreview = getColorPreview(method.color)
+
                   return (
-                    <TableRow key={`${method.type}-${index}`}>
-                      <TableCell className='font-medium'>
-                        {method.name}
-                      </TableCell>
-                      <TableCell>
-                        <code className='bg-muted rounded px-1.5 py-0.5 text-xs'>
-                          {method.type}
-                        </code>
-                      </TableCell>
-                      <TableCell>
-                        <div className='flex items-center gap-2'>
-                          {colorPreview && (
-                            <div
-                              className='size-5 shrink-0 rounded border'
-                              style={{ backgroundColor: colorPreview }}
-                            />
-                          )}
-                          <span className='text-muted-foreground truncate font-mono text-xs'>
-                            {method.color}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {method.min_topup ? (
-                          <span className='font-mono text-sm'>
-                            {method.min_topup}
-                          </span>
-                        ) : (
-                          <span className='text-muted-foreground text-sm'>
-                            —
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className='text-right'>
-                        <div className='flex justify-end gap-2'>
-                          <Button
-                            type='button'
-                            variant='ghost'
-                            size='sm'
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              handleEdit(method)
-                            }}
-                          >
-                            <Pencil className='h-4 w-4' />
-                          </Button>
-                          <Button
-                            type='button'
-                            variant='ghost'
-                            size='sm'
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              handleDelete(method)
-                            }}
-                          >
-                            <Trash2 className='h-4 w-4' />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    <div className='flex items-center gap-2'>
+                      {colorPreview && (
+                        <div
+                          className='size-5 shrink-0 rounded border'
+                          style={{ backgroundColor: colorPreview }}
+                        />
+                      )}
+                      <span className='text-muted-foreground truncate font-mono text-sm'>
+                        {method.color}
+                      </span>
+                    </div>
                   )
-                })}
-              </TableBody>
-            </Table>
-          </div>
+                },
+              },
+              {
+                id: 'min-top-up',
+                header: t('Min Top-up'),
+                cell: (method) =>
+                  method.min_topup ? (
+                    <span className='font-mono text-sm'>
+                      {method.min_topup}
+                    </span>
+                  ) : (
+                    <span className='text-muted-foreground text-sm'>—</span>
+                  ),
+              },
+              {
+                id: 'actions',
+                header: t('Actions'),
+                className: 'text-right',
+                cellClassName: 'text-right',
+                cell: (method) => (
+                  <div className='flex justify-end gap-2'>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleEdit(method)
+                      }}
+                    >
+                      <Pencil className='h-4 w-4' />
+                    </Button>
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      size='sm'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleDelete(method)
+                      }}
+                    >
+                      <Trash2 className='h-4 w-4' />
+                    </Button>
+                  </div>
+                ),
+              },
+            ]}
+          />
 
           {/* Mobile card view */}
           <div className='divide-y md:hidden'>

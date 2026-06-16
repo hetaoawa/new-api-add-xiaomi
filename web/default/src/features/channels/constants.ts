@@ -57,7 +57,7 @@ export const CHANNEL_TYPES = {
   54: 'DoubaoVideo',
   55: 'Sora',
   56: 'Replicate',
-  57: 'Codex',
+  57: 'ChatGPT Subscription (Codex)',
   58: 'Xiaomi',
 } as const
 

@@ -1,40 +1,41 @@
-import { useState, useMemo, useEffect } from 'react'
+/*
+Copyright (C) 2023-2026 QuantumNous
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+For commercial licensing, please contact support@quantumnous.com
+*/
+import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getRouteApi } from '@tanstack/react-router'
 import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getExpandedRowModel,
+  type OnChangeFn,
   type SortingState,
-  type VisibilityState,
-  type ExpandedState,
   type Row,
 } from '@tanstack/react-table'
-import { useDebounce, useMediaQuery } from '@/hooks'
+import { useMediaQuery } from '@/hooks'
 import { useTranslation } from 'react-i18next'
 import { getLobeIcon } from '@/lib/lobe-icon'
-import { cn } from '@/lib/utils'
 import { useTableUrlState } from '@/hooks/use-table-url-state'
 import { Input } from '@/components/ui/input'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
   DISABLED_ROW_DESKTOP,
   DISABLED_ROW_MOBILE,
-  DataTableToolbar,
-  TableSkeleton,
-  TableEmpty,
-  MobileCardList,
+  DataTablePage,
+  useDebouncedColumnFilter,
+  useDataTable,
 } from '@/components/data-table'
-import { DataTablePagination } from '@/components/data-table/pagination'
-import { PageFooterPortal } from '@/components/layout'
 import { getChannels, searchChannels, getGroups } from '../api'
 import {
   DEFAULT_PAGE_SIZE,
@@ -48,12 +49,21 @@ import {
   getChannelTypeIcon,
   getChannelTypeLabel,
 } from '../lib'
-import type { Channel } from '../types'
+import type { Channel, ChannelSortBy } from '../types'
 import { useChannelsColumns } from './channels-columns'
 import { useChannels } from './channels-provider'
 import { DataTableBulkActions } from './data-table-bulk-actions'
 
 const route = getRouteApi('/_authenticated/channels/')
+
+const CHANNEL_SORTABLE_COLUMNS = new Set<ChannelSortBy>([
+  'id',
+  'name',
+  'priority',
+  'balance',
+  'response_time',
+  'test_time',
+])
 
 function isDisabledChannelRow(channel: Channel) {
   return (
@@ -68,12 +78,6 @@ export function ChannelsTable() {
 
   // Table state
   const [sorting, setSorting] = useState<SortingState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    models: false,
-    tag: false,
-  })
-  const [rowSelection, setRowSelection] = useState({})
-  const [expanded, setExpanded] = useState<ExpandedState>({})
 
   // URL state management
   const {
@@ -103,38 +107,52 @@ export function ChannelsTable() {
   // Extract filters from column filters
   const statusFilter =
     (columnFilters.find((f) => f.id === 'status')?.value as string[]) || []
-  const typeFilter =
-    (columnFilters.find((f) => f.id === 'type')?.value as string[]) || []
+  const typeFilter = useMemo(
+    () => (columnFilters.find((f) => f.id === 'type')?.value as string[]) || [],
+    [columnFilters]
+  )
   const groupFilter =
     (columnFilters.find((f) => f.id === 'group')?.value as string[]) || []
-  const modelFilterFromUrl =
-    (columnFilters.find((f) => f.id === 'model')?.value as string) || ''
-
-  // Local state for immediate input feedback
-  const [modelFilterInput, setModelFilterInput] = useState(modelFilterFromUrl)
-  const debouncedModelFilter = useDebounce(modelFilterInput, 500)
-
-  // Sync local input with URL when URL changes (e.g., from back/forward navigation)
-  useEffect(() => {
-    setModelFilterInput(modelFilterFromUrl)
-  }, [modelFilterFromUrl])
-
-  // Update URL when debounced value changes
-  useEffect(() => {
-    if (debouncedModelFilter !== modelFilterFromUrl) {
-      onColumnFiltersChange((prev) => {
-        const filtered = prev.filter((f) => f.id !== 'model')
-        return debouncedModelFilter
-          ? [...filtered, { id: 'model', value: debouncedModelFilter }]
-          : filtered
-      })
-    }
-  }, [debouncedModelFilter, modelFilterFromUrl, onColumnFiltersChange])
-
-  const modelFilter = modelFilterFromUrl
+  const {
+    value: modelFilter,
+    inputValue: modelFilterInput,
+    onChange: onModelFilterInputChange,
+    onCompositionStart: onModelFilterCompositionStart,
+    onCompositionEnd: onModelFilterCompositionEnd,
+    resetInput: resetModelFilterInput,
+  } = useDebouncedColumnFilter({
+    columnFilters,
+    columnId: 'model',
+    onColumnFiltersChange,
+  })
 
   // Determine whether to use search or regular list API
   const shouldSearch = Boolean(globalFilter?.trim() || modelFilter.trim())
+
+  const sortParams = useMemo(() => {
+    const activeSort = sorting[0]
+    if (
+      !activeSort ||
+      !CHANNEL_SORTABLE_COLUMNS.has(activeSort.id as ChannelSortBy)
+    ) {
+      return {}
+    }
+
+    return {
+      sort_by: activeSort.id as ChannelSortBy,
+      sort_order: activeSort.desc ? 'desc' : 'asc',
+    } as const
+  }, [sorting])
+
+  const handleSortingChange: OnChangeFn<SortingState> = (updater) => {
+    setSorting((previous) => {
+      const next = typeof updater === 'function' ? updater(previous) : updater
+      if (pagination.pageIndex > 0) {
+        onPaginationChange({ ...pagination, pageIndex: 0 })
+      }
+      return next
+    })
+  }
 
   // Fetch groups for filter
   const { data: groupsData } = useQuery({
@@ -171,6 +189,7 @@ export function ChannelsTable() {
           : undefined,
       tag_mode: enableTagMode,
       id_sort: idSort,
+      ...sortParams,
       p: pagination.pageIndex + 1,
       page_size: pagination.pageSize,
     }),
@@ -193,6 +212,7 @@ export function ChannelsTable() {
               : undefined,
           tag_mode: enableTagMode,
           id_sort: idSort,
+          ...sortParams,
           p: pagination.pageIndex + 1,
           page_size: pagination.pageSize,
         })
@@ -212,6 +232,7 @@ export function ChannelsTable() {
               : undefined,
           tag_mode: enableTagMode,
           id_sort: idSort,
+          ...sortParams,
           p: pagination.pageIndex + 1,
           page_size: pagination.pageSize,
         })
@@ -238,40 +259,30 @@ export function ChannelsTable() {
   const columns = useChannelsColumns()
 
   // React Table instance
-  const table = useReactTable({
+  const { table } = useDataTable({
     data: channels,
     columns,
-    pageCount: Math.ceil(totalCount / pagination.pageSize),
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-      rowSelection,
-      pagination,
-      expanded,
-      globalFilter,
+    totalCount,
+    sorting,
+    initialColumnVisibility: {
+      models: false,
+      tag: false,
     },
+    columnFilters,
+    pagination,
+    globalFilter,
     enableRowSelection: (row: Row<Channel>) => !isTagAggregateRow(row.original),
-    onRowSelectionChange: setRowSelection,
-    onSortingChange: setSorting,
+    onSortingChange: handleSortingChange,
     onColumnFiltersChange,
-    onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange,
-    onExpandedChange: setExpanded,
     onGlobalFilterChange,
-    getCoreRowModel: getCoreRowModel(),
-    getExpandedRowModel: getExpandedRowModel(),
     getSubRows: (row: Channel & { children?: Channel[] }) => row.children,
     manualPagination: true,
     manualSorting: true,
     manualFiltering: true,
+    withExpandedRowModel: true,
+    ensurePageInRange,
   })
-
-  // Ensure page is in range when total count changes
-  const pageCount = table.getPageCount()
-  useEffect(() => {
-    ensurePageInRange(pageCount)
-  }, [pageCount, ensurePageInRange])
 
   // Prepare filter options from existing channel types only.
   const typeFilterOptions = useMemo(() => {
@@ -331,122 +342,62 @@ export function ChannelsTable() {
   ]
 
   return (
-    <>
-      <div className='space-y-3 sm:space-y-4'>
-        <DataTableToolbar
-          table={table}
-          searchPlaceholder={t('Filter by name, ID, or key...')}
-          additionalSearch={
-            <Input
-              placeholder={t('Filter by model...')}
-              value={modelFilterInput}
-              onChange={(e) => setModelFilterInput(e.target.value)}
-              className='h-8 w-full sm:w-[150px] lg:w-[200px]'
-            />
-          }
-          filters={[
-            {
-              columnId: 'status',
-              title: t('Status'),
-              options: [...CHANNEL_STATUS_OPTIONS],
-              singleSelect: true,
-            },
-            {
-              columnId: 'type',
-              title: t('Type'),
-              options: typeFilterOptions,
-              singleSelect: true,
-            },
-            {
-              columnId: 'group',
-              title: t('Group'),
-              options: groupFilterOptions,
-              singleSelect: true,
-            },
-          ]}
-        />
-
-        {isMobile ? (
-          <MobileCardList
-            table={table}
-            isLoading={isLoading}
-            emptyTitle='No Channels Found'
-            emptyDescription='No channels available. Create your first channel to get started.'
-            getRowClassName={(row) =>
-              isDisabledChannelRow(row.original) ? DISABLED_ROW_MOBILE : undefined
-            }
+    <DataTablePage
+      table={table}
+      columns={columns}
+      isLoading={isLoading}
+      isFetching={isFetching}
+      emptyTitle={t('No Channels Found')}
+      emptyDescription={t(
+        'No channels available. Create your first channel to get started.'
+      )}
+      skeletonKeyPrefix='channel-skeleton'
+      applyHeaderSize
+      toolbarProps={{
+        searchPlaceholder: t('Filter by name, ID, or key...'),
+        searchDebounceMs: 500,
+        onReset: () => {
+          resetModelFilterInput()
+        },
+        additionalSearch: (
+          <Input
+            placeholder={t('Filter by model...')}
+            value={modelFilterInput}
+            onChange={onModelFilterInputChange}
+            onCompositionStart={onModelFilterCompositionStart}
+            onCompositionEnd={onModelFilterCompositionEnd}
+            className='w-full sm:w-[150px] lg:w-[180px]'
           />
-        ) : (
-          <>
-            <div
-              className={cn(
-                'overflow-hidden rounded-md border transition-opacity duration-150',
-                isFetching && !isLoading && 'pointer-events-none opacity-50'
-              )}
-            >
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <TableHead
-                          key={header.id}
-                          style={{ width: header.getSize() }}
-                        >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <TableSkeleton table={table} keyPrefix='channel-skeleton' />
-                  ) : table.getRowModel().rows.length === 0 ? (
-                    <TableEmpty
-                      colSpan={columns.length}
-                      title={t('No Channels Found')}
-                      description={t(
-                        'No channels available. Create your first channel to get started.'
-                      )}
-                    />
-                  ) : (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && 'selected'}
-                        className={cn(
-                          isDisabledChannelRow(row.original) &&
-                            DISABLED_ROW_DESKTOP
-                        )}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            <DataTableBulkActions table={table} />
-          </>
-        )}
-      </div>
-      <PageFooterPortal>
-        <DataTablePagination table={table} />
-      </PageFooterPortal>
-    </>
+        ),
+        filters: [
+          {
+            columnId: 'status',
+            title: t('Status'),
+            options: [...CHANNEL_STATUS_OPTIONS],
+            singleSelect: true,
+          },
+          {
+            columnId: 'type',
+            title: t('Type'),
+            options: typeFilterOptions,
+            singleSelect: true,
+          },
+          {
+            columnId: 'group',
+            title: t('Group'),
+            options: groupFilterOptions,
+            singleSelect: true,
+          },
+        ],
+      }}
+      getRowClassName={(row, { isMobile }) =>
+        isDisabledChannelRow(row.original)
+          ? isMobile
+            ? DISABLED_ROW_MOBILE
+            : DISABLED_ROW_DESKTOP
+          : undefined
+      }
+      bulkActions={<DataTableBulkActions table={table} />}
+    />
   )
 }
