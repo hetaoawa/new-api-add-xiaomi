@@ -46,7 +46,7 @@ import {
   channelsQueryKeys,
   aggregateChannelsByTag,
   isTagAggregateRow,
-  getChannelTypeIcon,
+  getChannelTypeIconSpec,
   getChannelTypeLabel,
 } from '../lib'
 import type { Channel, ChannelSortBy } from '../types'
@@ -325,12 +325,11 @@ export function ChannelsTable() {
         count: totalTypes,
       },
       ...typeIds.map((item) => {
-        const iconName = getChannelTypeIcon(item.type)
         return {
           label: getChannelTypeLabel(item.type),
           value: String(item.type),
           count: item.count,
-          iconNode: getLobeIcon(`${iconName}.Color`, 16),
+          iconNode: getLobeIcon(getChannelTypeIconSpec(item.type), 16),
         }
       }),
     ]

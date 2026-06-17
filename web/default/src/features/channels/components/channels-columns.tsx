@@ -59,6 +59,7 @@ import {
   formatResponseTime,
   getBalanceVariant,
   getChannelTypeIcon,
+  getChannelTypeIconSpec,
   getChannelTypeLabel,
   getResponseTimeConfig,
   isMultiKeyChannel,
@@ -603,7 +604,6 @@ export function useChannelsColumns(): ColumnDef<Channel>[] {
         const type = row.getValue('type') as number
         const typeNameKey = getChannelTypeLabel(type)
         const typeName = t(typeNameKey)
-        const iconName = getChannelTypeIcon(type)
         const channel = row.original as Channel
         const isMultiKey = isMultiKeyChannel(channel)
         const multiKeyMode = channel.channel_info?.multi_key_mode ?? 'random'
@@ -645,7 +645,7 @@ export function useChannelsColumns(): ColumnDef<Channel>[] {
                   }
                 >
                   <ProviderBadge
-                    iconKey={iconName}
+                    iconKey={getChannelTypeIconSpec(type)}
                     label={typeName}
                     copyable={false}
                     showDot={false}
