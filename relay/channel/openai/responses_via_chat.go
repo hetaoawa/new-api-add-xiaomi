@@ -210,7 +210,7 @@ func OaiChatToResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo
 								ID:        state.ID,
 								CallId:    state.ID,
 								Name:      state.Function.Name,
-								Arguments: common.StringToByteSlice(state.Function.Arguments),
+								Arguments: common.StringToJsonRawMessage(state.Function.Arguments),
 								Status:    "in_progress",
 							},
 							OutputIndex: common.GetPointer(idx),
@@ -258,7 +258,7 @@ func OaiChatToResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo
 						ID:        state.ID,
 						CallId:    state.ID,
 						Name:      state.Function.Name,
-						Arguments: common.StringToByteSlice(state.Function.Arguments),
+						Arguments: common.StringToJsonRawMessage(state.Function.Arguments),
 						Status:    "completed",
 					}
 					if err := sendResponsesEvent(dto.ResponsesStreamResponse{

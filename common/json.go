@@ -59,3 +59,15 @@ func JsonRawMessageToString(data json.RawMessage) string {
 	}
 	return value
 }
+
+// StringToJsonRawMessage wraps a plain string as a valid JSON string RawMessage.
+func StringToJsonRawMessage(value string) json.RawMessage {
+	if value == "" {
+		return json.RawMessage(`""`)
+	}
+	data, err := Marshal(value)
+	if err != nil {
+		return json.RawMessage(`""`)
+	}
+	return json.RawMessage(data)
+}

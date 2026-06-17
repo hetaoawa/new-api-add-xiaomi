@@ -46,7 +46,7 @@ func ChatCompletionsResponseToResponsesResponse(resp *dto.OpenAITextResponse) (*
 					ID:        toolCall.ID,
 					CallId:    toolCall.ID,
 					Name:      toolCall.Function.Name,
-					Arguments: common.StringToByteSlice(toolCall.Function.Arguments),
+					Arguments: common.StringToJsonRawMessage(toolCall.Function.Arguments),
 					Status:    "completed",
 				})
 			}
