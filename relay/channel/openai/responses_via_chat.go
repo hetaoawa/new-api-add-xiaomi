@@ -68,6 +68,8 @@ func OaiChatToResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo
 	toolStates := make(map[int]dto.ToolCallResponse)
 	messageItemID := "msg_0"
 	sentCreated := false
+	sentMessageAdded := false
+	sentMessageDone := false
 
 	sendResponsesEvent := func(event dto.ResponsesStreamResponse) *types.NewAPIError {
 		data, err := common.Marshal(event)
@@ -91,6 +93,52 @@ func OaiChatToResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo
 				CreatedAt: int(createdAt),
 				Model:     model,
 			},
+		})
+	}
+
+	emitMessageAddedIfNeeded := func() *types.NewAPIError {
+		if sentMessageAdded {
+			return nil
+		}
+		sentMessageAdded = true
+		return sendResponsesEvent(dto.ResponsesStreamResponse{
+			Type: "response.output_item.added",
+			Item: &dto.ResponsesOutput{
+				Type:   "message",
+				ID:     messageItemID,
+				Status: "in_progress",
+				Role:   "assistant",
+				Content: []dto.ResponsesOutputContent{
+					{
+						Type: "output_text",
+						Text: "",
+					},
+				},
+			},
+			OutputIndex: common.GetPointer(0),
+		})
+	}
+
+	emitMessageDoneIfNeeded := func() *types.NewAPIError {
+		if sentMessageDone || !sentMessageAdded {
+			return nil
+		}
+		sentMessageDone = true
+		return sendResponsesEvent(dto.ResponsesStreamResponse{
+			Type: "response.output_item.done",
+			Item: &dto.ResponsesOutput{
+				Type:   "message",
+				ID:     messageItemID,
+				Status: "completed",
+				Role:   "assistant",
+				Content: []dto.ResponsesOutputContent{
+					{
+						Type: "output_text",
+						Text: assistantText.String(),
+					},
+				},
+			},
+			OutputIndex: common.GetPointer(0),
 		})
 	}
 
@@ -118,6 +166,10 @@ func OaiChatToResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo
 		for _, choice := range chunk.Choices {
 			deltaText := choice.Delta.GetContentString()
 			if deltaText != "" {
+				if err := emitMessageAddedIfNeeded(); err != nil {
+					sr.Stop(err)
+					return
+				}
 				assistantText.WriteString(deltaText)
 				if err := sendResponsesEvent(dto.ResponsesStreamResponse{
 					Type:         "response.output_text.delta",
@@ -183,6 +235,10 @@ func OaiChatToResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo
 			if choice.FinishReason != nil && *choice.FinishReason != "" {
 				outputs := make([]dto.ResponsesOutput, 0, 1+len(toolStates))
 				if assistantText.Len() > 0 {
+					if err := emitMessageDoneIfNeeded(); err != nil {
+						sr.Stop(err)
+						return
+					}
 					outputs = append(outputs, dto.ResponsesOutput{
 						Type:   "message",
 						ID:     messageItemID,

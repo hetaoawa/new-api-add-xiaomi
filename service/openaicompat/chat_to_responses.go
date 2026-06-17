@@ -11,6 +11,17 @@ import (
 	"github.com/samber/lo"
 )
 
+func normalizeResponsesReasoningEffort(effort string) string {
+	switch strings.ToLower(strings.TrimSpace(effort)) {
+	case "", "minimal", "low", "medium", "high":
+		return strings.ToLower(strings.TrimSpace(effort))
+	case "xhigh", "max":
+		return "high"
+	default:
+		return strings.ToLower(strings.TrimSpace(effort))
+	}
+}
+
 func normalizeChatImageURLToString(v any) any {
 	switch vv := v.(type) {
 	case string:
@@ -393,7 +404,7 @@ func ChatCompletionsRequestToResponsesRequest(req *dto.GeneralOpenAIRequest) (*d
 
 	if req.ReasoningEffort != "" {
 		out.Reasoning = &dto.Reasoning{
-			Effort:  req.ReasoningEffort,
+			Effort:  normalizeResponsesReasoningEffort(req.ReasoningEffort),
 			Summary: "detailed",
 		}
 	}

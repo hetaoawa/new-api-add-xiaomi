@@ -33,7 +33,7 @@ func ResponsesRequestToChatCompletionsRequest(req *dto.OpenAIResponsesRequest) (
 	}
 
 	if req.Reasoning != nil && req.Reasoning.Effort != "" {
-		out.ReasoningEffort = req.Reasoning.Effort
+		out.ReasoningEffort = normalizeResponsesReasoningEffort(req.Reasoning.Effort)
 	}
 	if req.StreamOptions != nil {
 		out.StreamOptions = req.StreamOptions

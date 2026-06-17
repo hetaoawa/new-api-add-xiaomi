@@ -229,6 +229,9 @@ func StreamScannerHandler(c *gin.Context, resp *http.Response, info *relaycommon
 			case <-ctx.Done():
 				return
 			case <-c.Request.Context().Done():
+				if info.StreamStatus != nil && info.StreamStatus.EndReason == relaycommon.StreamEndReasonDone {
+					return
+				}
 				info.StreamStatus.SetEndReason(relaycommon.StreamEndReasonClientGone, c.Request.Context().Err())
 				return
 			default:
@@ -283,6 +286,9 @@ func StreamScannerHandler(c *gin.Context, resp *http.Response, info *relaycommon
 	case <-stopChan:
 		// EndReason already set by the goroutine that triggered stopChan
 	case <-c.Request.Context().Done():
+		if info.StreamStatus != nil && info.StreamStatus.EndReason == relaycommon.StreamEndReasonDone {
+			break
+		}
 		info.StreamStatus.SetEndReason(relaycommon.StreamEndReasonClientGone, c.Request.Context().Err())
 	}
 
