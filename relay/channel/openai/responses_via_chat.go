@@ -294,6 +294,8 @@ func OaiChatToResponsesStreamHandler(c *gin.Context, info *relaycommon.RelayInfo
 					sr.Stop(err)
 					return
 				}
+				sr.Done()
+				return
 			}
 		}
 	})
